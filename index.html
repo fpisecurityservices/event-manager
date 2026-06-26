@@ -182,6 +182,33 @@
   /* ── Export inputs ── */
   .export-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .export-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+  /* ── Clock mode tabs ── */
+  .mode-tabs { display: flex; background: var(--bg-sec); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; margin-bottom: 12px; }
+  .mode-tab { flex: 1; padding: 8px; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-sec); transition: all 0.15s; }
+  .mode-tab.active { background: var(--card); color: var(--blue); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  /* ── Multi-select ── */
+  .guard-check-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .guard-check-row:last-child { border-bottom: none; }
+  .guard-check-row input[type=checkbox] { width: 20px; height: 20px; min-height: unset; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
+  .guard-check-row.checked { background: #e8f0fb; margin: 0 -16px; padding: 10px 16px; }
+
+  /* ── Roll call ── */
+  .rc-progress { background: var(--bg-sec); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .rc-bar-wrap { flex: 1; background: var(--border); border-radius: 20px; height: 8px; overflow: hidden; }
+  .rc-bar { height: 100%; background: var(--blue); border-radius: 20px; transition: width 0.3s; }
+  .rc-count { font-size: 13px; font-weight: 600; color: var(--blue); white-space: nowrap; }
+  .rc-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 10px; }
+  .rc-name { font-size: 20px; font-weight: 700; margin: 12px 0 4px; }
+  .rc-post { font-size: 13px; color: var(--text-sec); margin-bottom: 16px; }
+  .rc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .rc-actions .btn { justify-content: center; font-size: 14px; padding: 12px; }
+  .rc-skip { width: 100%; background: transparent; border: none; color: var(--text-sec); font-size: 13px; cursor: pointer; padding: 6px; }
+  .rc-done-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .rc-done-item:last-child { border-bottom: none; }
+  .rc-already { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-sec); }
+  .rc-already:last-child { border-bottom: none; }
 </style>
 </head>
 <body>
@@ -252,16 +279,65 @@
 
   <!-- CLOCK -->
   <div class="tab-panel" id="panel-clock">
-    <div class="card" style="margin-bottom:12px">
-      <strong style="font-size:15px;display:block;margin-bottom:12px">Log Clock Event</strong>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div>
-          <label>Guard</label>
-          <select id="clock-guard"><option value="">— Select guard —</option></select>
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="mode-tab-single" onclick="setClockMode('single')"><i class="ti ti-user"></i> Single</button>
+      <button class="mode-tab" id="mode-tab-multi" onclick="setClockMode('multi')"><i class="ti ti-users"></i> Multi-select</button>
+      <button class="mode-tab" id="mode-tab-rollcall" onclick="setClockMode('rollcall')"><i class="ti ti-clipboard-list"></i> Roll Call</button>
+    </div>
+
+    <!-- Single mode -->
+    <div id="clock-mode-single">
+      <div class="card" style="margin-bottom:12px">
+        <strong style="font-size:15px;display:block;margin-bottom:12px">Log Clock Event</strong>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <label>Guard</label>
+            <select id="clock-guard"><option value="">— Select guard —</option></select>
+          </div>
+          <div>
+            <label>Action</label>
+            <select id="clock-action">
+              <option value="in">Clock IN</option>
+              <option value="out">Clock OUT</option>
+              <option value="flag">Flag — late / issue</option>
+              <option value="noshow">Mark no-show</option>
+            </select>
+          </div>
+          <div>
+            <label>Note (optional)</label>
+            <textarea id="clock-note" placeholder="Any details…" rows="2"></textarea>
+          </div>
+          <button class="btn btn-success btn-full" onclick="submitClock()"><i class="ti ti-clock-check"></i> Submit</button>
+        </div>
+      </div>
+      <div class="section-title">Recent Events (last 20)</div>
+      <div class="card" style="padding:0 16px" id="clock-events"></div>
+    </div>
+
+    <!-- Multi-select mode -->
+    <div id="clock-mode-multi" style="display:none">
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <strong style="font-size:15px">Select Guards</strong>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-outline" style="min-height:34px;padding:4px 10px;font-size:12px" onclick="multiSelectAll()">All</button>
+            <button class="btn btn-outline" style="min-height:34px;padding:4px 10px;font-size:12px" onclick="multiSelectNone()">None</button>
+            <button class="btn btn-outline" style="min-height:34px;padding:4px 10px;font-size:12px" onclick="multiSelectNotIn()">Not clocked in</button>
+          </div>
+        </div>
+        <div style="position:relative;margin-bottom:8px">
+          <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-sec)"></i>
+          <input type="text" id="multi-search" placeholder="Filter guards…" style="padding-left:34px" oninput="renderMultiSelect()">
+        </div>
+        <div id="multi-guard-list" style="max-height:40vh;overflow-y:auto;padding:0 0 4px"></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <strong style="font-size:13px"><span id="multi-selected-count">0</span> selected</strong>
         </div>
         <div>
-          <label>Action</label>
-          <select id="clock-action">
+          <label>Action to apply</label>
+          <select id="multi-action">
             <option value="in">Clock IN</option>
             <option value="out">Clock OUT</option>
             <option value="flag">Flag — late / issue</option>
@@ -270,13 +346,25 @@
         </div>
         <div>
           <label>Note (optional)</label>
-          <textarea id="clock-note" placeholder="Any details…" rows="2"></textarea>
+          <textarea id="multi-note" placeholder="Applies to all selected…" rows="2"></textarea>
         </div>
-        <button class="btn btn-success btn-full" onclick="submitClock()"><i class="ti ti-clock-check"></i> Submit</button>
+        <button class="btn btn-success btn-full" onclick="submitMulti()"><i class="ti ti-clock-check"></i> Submit for selected</button>
       </div>
     </div>
-    <div class="section-title">Recent Events (last 20)</div>
-    <div class="card" style="padding:0 16px" id="clock-events"></div>
+
+    <!-- Roll Call mode -->
+    <div id="clock-mode-rollcall" style="display:none">
+      <div class="rc-progress">
+        <div class="rc-bar-wrap"><div class="rc-bar" id="rc-bar" style="width:0%"></div></div>
+        <div class="rc-count" id="rc-count">0 / 0</div>
+        <button class="btn btn-outline" style="min-height:32px;padding:4px 10px;font-size:12px" onclick="resetRollCall()"><i class="ti ti-refresh"></i> Reset</button>
+      </div>
+      <div id="rc-current-card"></div>
+      <div id="rc-done-section" style="display:none">
+        <div class="section-title">Logged this session</div>
+        <div class="card" style="padding:0 16px"><div id="rc-done-list"></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- CHAT -->
@@ -527,6 +615,8 @@ function renderAll() {
   renderNotes();
   renderExport();
   populateGuardSelects();
+  if (clockMode === 'multi') renderMultiSelect();
+  if (clockMode === 'rollcall') renderRollCall();
 }
 
 // ─────────────────────────────────────────
@@ -696,6 +786,192 @@ async function bulkImport() {
   document.getElementById('bulk-import-btn').disabled = true;
   await syncAll();
   alert(`Imported ${toInsert.length} guards. Skipped ${skipped} duplicates.`);
+}
+
+// ─────────────────────────────────────────
+// Clock mode switching
+// ─────────────────────────────────────────
+let clockMode = 'single';
+function setClockMode(mode) {
+  clockMode = mode;
+  ['single','multi','rollcall'].forEach(m => {
+    document.getElementById('clock-mode-' + m).style.display = m === mode ? 'block' : 'none';
+    document.getElementById('mode-tab-' + m).classList.toggle('active', m === mode);
+  });
+  if (mode === 'multi') renderMultiSelect();
+  if (mode === 'rollcall') initRollCall();
+}
+
+// ─────────────────────────────────────────
+// Multi-select
+// ─────────────────────────────────────────
+let multiSelected = new Set();
+
+function renderMultiSelect() {
+  const q = (document.getElementById('multi-search')?.value || '').toLowerCase();
+  const filtered = state.guards.filter(g =>
+    g.name.toLowerCase().includes(q) || (g.post||'').toLowerCase().includes(q)
+  ).sort((a,b) => a.name.localeCompare(b.name));
+
+  const list = document.getElementById('multi-guard-list');
+  if (!filtered.length) { list.innerHTML = '<div style="padding:10px;color:var(--text-sec)">No guards found.</div>'; return; }
+
+  list.innerHTML = filtered.map(g => {
+    const checked = multiSelected.has(g.id);
+    const s = guardStatus(g.id);
+    return `<div class="guard-check-row ${checked ? 'checked' : ''}" onclick="toggleMultiSelect('${g.id}')">
+      <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation();toggleMultiSelect('${g.id}')">
+      ${avatar(g.name)}
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500">${escHtml(g.name)}</div>
+        <div style="font-size:12px;color:var(--text-sec)">${g.post ? escHtml(g.post) + ' · ' : ''}${statusPill(s)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('multi-selected-count').textContent = multiSelected.size;
+}
+
+function toggleMultiSelect(id) {
+  if (multiSelected.has(id)) multiSelected.delete(id);
+  else multiSelected.add(id);
+  renderMultiSelect();
+}
+
+function multiSelectAll() {
+  state.guards.forEach(g => multiSelected.add(g.id));
+  renderMultiSelect();
+}
+function multiSelectNone() {
+  multiSelected.clear();
+  renderMultiSelect();
+}
+function multiSelectNotIn() {
+  multiSelected.clear();
+  state.guards.forEach(g => { if (guardStatus(g.id) !== 'in') multiSelected.add(g.id); });
+  renderMultiSelect();
+}
+
+async function submitMulti() {
+  if (!multiSelected.size) { alert('No guards selected.'); return; }
+  const action = document.getElementById('multi-action').value;
+  const note = document.getElementById('multi-note').value.trim();
+  const ts = Date.now();
+  const btn = document.querySelector('#clock-mode-multi .btn-success');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    await Promise.all([...multiSelected].map(guardId =>
+      api('events', { method:'POST', body: JSON.stringify({ guardId, action, note, by: currentSup, ts }) })
+    ));
+    multiSelected.clear();
+    document.getElementById('multi-note').value = '';
+    await syncAll();
+    renderMultiSelect();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-clock-check"></i> Submit for selected';
+  }
+}
+
+// ─────────────────────────────────────────
+// Roll Call
+// ─────────────────────────────────────────
+let rcQueue = [];      // guards not yet acted on
+let rcDone = [];       // { guard, action } logged this session
+let rcIndex = 0;
+
+function initRollCall() {
+  // Only reset if queue is empty (fresh start)
+  if (rcQueue.length === 0 && rcDone.length === 0) resetRollCall();
+  else renderRollCall();
+}
+
+function resetRollCall() {
+  // Build queue: all guards, already-logged ones go to done with their current status shown
+  const sorted = [...state.guards].sort((a,b) => a.name.localeCompare(b.name));
+  rcQueue = sorted.filter(g => guardStatus(g.id) === 'none');
+  rcDone = sorted
+    .filter(g => guardStatus(g.id) !== 'none')
+    .map(g => ({ guard: g, action: guardStatus(g.id), preExisting: true }));
+  rcIndex = 0;
+  renderRollCall();
+}
+
+function renderRollCall() {
+  const total = rcQueue.length + rcDone.filter(d => !d.preExisting).length;
+  const logged = rcDone.filter(d => !d.preExisting).length;
+  const grandTotal = state.guards.length;
+  const grandLogged = rcDone.length;
+
+  // Progress bar counts all guards (pre-existing + logged this session)
+  const pct = grandTotal ? Math.round((grandLogged / grandTotal) * 100) : 0;
+  document.getElementById('rc-bar').style.width = pct + '%';
+  document.getElementById('rc-count').textContent = `${grandLogged} / ${grandTotal}`;
+
+  const card = document.getElementById('rc-current-card');
+  if (rcQueue.length === 0) {
+    card.innerHTML = `<div class="rc-card">
+      <i class="ti ti-circle-check" style="font-size:48px;color:var(--green)"></i>
+      <div class="rc-name">Roll Call Complete!</div>
+      <div class="rc-post">All ${grandTotal} guards have been logged.</div>
+    </div>`;
+  } else {
+    const g = rcQueue[rcIndex] || rcQueue[0];
+    if (!g) { card.innerHTML = ''; return; }
+    const s = guardStatus(g.id);
+    card.innerHTML = `<div class="rc-card">
+      <div style="display:flex;justify-content:center">${avatarLarge(g.name)}</div>
+      <div class="rc-name">${escHtml(g.name)}</div>
+      <div class="rc-post">${g.post ? escHtml(g.post) : 'No post assigned'}${g.shift ? ' · ' + escHtml(g.shift) : ''}</div>
+      <div class="rc-actions">
+        <button class="btn btn-success" onclick="logRollCall('${g.id}','in')"><i class="ti ti-clock-check"></i> Clock IN</button>
+        <button class="btn btn-danger" onclick="logRollCall('${g.id}','noshow')"><i class="ti ti-user-off"></i> No-show</button>
+        <button class="btn btn-outline" style="border-color:var(--amber);color:var(--amber)" onclick="logRollCall('${g.id}','flag')"><i class="ti ti-flag"></i> Flag</button>
+        <button class="btn btn-outline" onclick="logRollCall('${g.id}','out')"><i class="ti ti-clock-pause"></i> Clock OUT</button>
+      </div>
+      <button class="rc-skip" onclick="skipRollCall('${g.id}')">Skip for now →</button>
+      <div style="font-size:12px;color:var(--text-sec);margin-top:6px">${rcQueue.length} remaining</div>
+    </div>`;
+  }
+
+  // Done list
+  const doneSection = document.getElementById('rc-done-section');
+  const doneList = document.getElementById('rc-done-list');
+  const sessionDone = rcDone.filter(d => !d.preExisting);
+  if (sessionDone.length) {
+    doneSection.style.display = 'block';
+    const actionLabel = { in:'Clocked In', out:'Clocked Out', flag:'Flagged', noshow:'No-show' };
+    doneList.innerHTML = sessionDone.map(d => `
+      <div class="rc-done-item">
+        ${avatar(d.guard.name)}
+        <span style="flex:1">${escHtml(d.guard.name)}</span>
+        ${statusPill(d.action)}
+      </div>`).join('');
+  } else {
+    doneSection.style.display = 'none';
+  }
+}
+
+async function logRollCall(guardId, action) {
+  const g = rcQueue.find(g => g.id === guardId);
+  if (!g) return;
+  await api('events', { method:'POST', body: JSON.stringify({ guardId, action, note: '', by: currentSup, ts: Date.now() }) });
+  rcQueue = rcQueue.filter(g => g.id !== guardId);
+  rcDone.unshift({ guard: g, action, preExisting: false });
+  await syncAll();
+  renderRollCall();
+}
+
+function skipRollCall(guardId) {
+  // Move to end of queue
+  const idx = rcQueue.findIndex(g => g.id === guardId);
+  if (idx === -1) return;
+  const [g] = rcQueue.splice(idx, 1);
+  rcQueue.push(g);
+  renderRollCall();
+}
+
+function avatarLarge(name) {
+  return `<div class="avatar" style="background:${avatarColor(name)};width:60px;height:60px;font-size:20px">${initials(name)}</div>`;
 }
 
 // ─────────────────────────────────────────

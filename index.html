@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FPI July 4th Event Manager</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #185FA5;
+    --green: #3B6D11;
+    --amber: #854F0B;
+    --red: #A32D2D;
+    --text: #1a1a1a;
+    --text-sec: #6b6b6b;
+    --border: rgba(0,0,0,0.12);
+    --bg: #f5f5f3;
+    --card: #ffffff;
+    --bg-sec: #f8f8f6;
+  }
+
+  body { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; background: var(--bg); color: var(--text); }
+
+  /* ── Layout ── */
+  #login-screen, #app { max-width: 680px; margin: 0 auto; padding: 0 12px; }
+  #app { padding-bottom: 70px; display: none; }
+
+  /* ── Login ── */
+  #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 16px; }
+  .login-logo { font-size: 28px; font-weight: 700; color: var(--blue); letter-spacing: -0.5px; }
+  .login-sub { color: var(--text-sec); font-size: 15px; }
+  .login-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; }
+  .login-card h2 { font-size: 16px; font-weight: 500; }
+  #login-error { color: var(--red); font-size: 13px; display: none; }
+  #connecting-banner { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #856404; text-align: center; display: none; }
+
+  /* ── Forms ── */
+  label { font-size: 12px; color: var(--text-sec); display: block; margin-bottom: 3px; }
+  input, select, textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px; font-family: inherit;
+    background: var(--card); color: var(--text); min-height: 44px;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,95,165,0.15); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* ── Buttons ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; min-height: 44px; transition: opacity 0.15s; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* ── Cards ── */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .card + .card { margin-top: 10px; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
+
+  /* ── Bottom Nav ── */
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); height: 60px; display: flex; z-index: 100; max-width: 680px; margin: 0 auto; }
+  .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: none; background: transparent; color: var(--text-sec); font-size: 10px; font-family: inherit; padding: 4px 0; transition: color 0.15s; }
+  .nav-tab i { font-size: 20px; }
+  .nav-tab.active { color: var(--blue); }
+  /* center nav bar on desktop */
+  @media (min-width: 680px) { #bottom-nav { left: 50%; transform: translateX(-50%); width: 680px; } }
+
+  /* ── Status pills ── */
+  .pill { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+  .pill-in { background: #d4edda; color: var(--green); }
+  .pill-out { background: #e9ecef; color: #495057; }
+  .pill-flag { background: #fff3cd; color: var(--amber); }
+  .pill-noshow { background: #f8d7da; color: var(--red); }
+  .pill-none { background: #e9ecef; color: #6c757d; }
+
+  /* ── Avatar ── */
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; flex-shrink: 0; }
+
+  /* ── Stats grid ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+  .stat-in .stat-num { color: var(--green); }
+  .stat-flag .stat-num { color: var(--amber); }
+  .stat-noshow .stat-num { color: var(--red); }
+
+  /* ── Guard rows ── */
+  .guard-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .guard-row:last-child { border-bottom: none; }
+  .guard-info { flex: 1; min-width: 0; }
+  .guard-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .guard-meta { font-size: 12px; color: var(--text-sec); margin-top: 1px; }
+  .post-badge { display: inline-block; background: var(--bg-sec); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; padding: 1px 6px; }
+
+  /* ── Announcements ── */
+  .announcement { border-left: 3px solid var(--blue); padding: 8px 12px; background: var(--bg-sec); border-radius: 0 8px 8px 0; margin-bottom: 8px; }
+  .announcement-meta { font-size: 11px; color: var(--text-sec); margin-bottom: 3px; }
+
+  /* ── Chat ── */
+  #chat-messages { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; min-height: 200px; max-height: 50vh; overflow-y: auto; }
+  .bubble-wrap { display: flex; flex-direction: column; }
+  .bubble-wrap.own { align-items: flex-end; }
+  .bubble-wrap.other { align-items: flex-start; }
+  .bubble-meta { font-size: 11px; color: var(--text-sec); margin-bottom: 3px; }
+  .bubble { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
+  .bubble.own { background: #d4edda; color: #1a3a1a; border-bottom-right-radius: 4px; }
+  .bubble.other { background: #e9ecef; color: var(--text); border-bottom-left-radius: 4px; }
+  .bubble.broadcast { border-left: 3px solid var(--blue); background: #e8f0fb; border-radius: 0 12px 12px 0; }
+  .compose-area { display: flex; gap: 8px; align-items: flex-end; padding-top: 8px; border-top: 1px solid var(--border); }
+  .compose-area textarea { min-height: 44px; max-height: 120px; }
+
+  /* ── Export table ── */
+  .pay-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .pay-table th { text-align: left; padding: 6px 8px; font-size: 11px; color: var(--text-sec); border-bottom: 2px solid var(--border); }
+  .pay-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); }
+  .pay-table tfoot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom: none; }
+  .table-wrap { overflow-x: auto; }
+
+  /* ── Summary grid ── */
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+  .summary-num { font-size: 20px; font-weight: 700; color: var(--blue); }
+  .summary-label { font-size: 11px; color: var(--text-sec); }
+
+  /* ── Modals ── */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: var(--card); border-radius: 16px 16px 0 0; padding: 20px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 16px; font-weight: 600; }
+  .modal-close { background: var(--bg-sec); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+  /* ── Drop zone ── */
+  .drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 24px; text-align: center; color: var(--text-sec); cursor: pointer; transition: border-color 0.15s; }
+  .drop-zone.drag-over { border-color: var(--blue); background: #e8f0fb; }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .preview-table th, .preview-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+  .preview-table th { color: var(--text-sec); }
+
+  /* ── Clock event list ── */
+  .event-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .event-row:last-child { border-bottom: none; }
+  .event-action { font-weight: 500; font-size: 13px; }
+  .event-action.in { color: var(--green); }
+  .event-action.out { color: var(--text-sec); }
+  .event-action.flag { color: var(--amber); }
+  .event-action.noshow { color: var(--red); }
+  .event-meta { font-size: 12px; color: var(--text-sec); }
+
+  /* ── Note cards ── */
+  .note-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .note-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .note-guard { font-weight: 500; font-size: 13px; }
+  .note-by { font-size: 11px; color: var(--text-sec); }
+  .note-text { font-size: 13px; color: var(--text); }
+
+  /* ── Search ── */
+  .search-bar { position: relative; }
+  .search-bar i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-sec); pointer-events: none; }
+  .search-bar input { padding-left: 34px; }
+
+  /* ── Top bar ── */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 0 8px; }
+  .top-bar-title { font-size: 17px; font-weight: 600; }
+  .sync-indicator { font-size: 11px; color: var(--text-sec); display: flex; align-items: center; gap: 4px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+  .sync-dot.syncing { background: var(--amber); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; padding-top: 4px; }
+  .tab-panel.active { display: block; }
+
+  .filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .count-badge { background: var(--bg-sec); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; font-size: 12px; color: var(--text-sec); }
+
+  /* ── Export inputs ── */
+  .export-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .export-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ── Connecting banner ── -->
+<div id="connecting-banner">Connecting to server…</div>
+
+<!-- ── Login ── -->
+<div id="login-screen">
+  <div class="login-logo">FPI Security Services</div>
+  <div class="login-sub">July 4th Event Manager</div>
+  <div class="login-card">
+    <h2>Supervisor Login</h2>
+    <div>
+      <label>Your name</label>
+      <input type="text" id="sup-name" placeholder="First Last" autocomplete="name">
+    </div>
+    <div>
+      <label>Event PIN (4 digits)</label>
+      <input type="password" id="sup-pin" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]{4}">
+    </div>
+    <div id="login-error"></div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Enter Dashboard</button>
+  </div>
+</div>
+
+<!-- ── Main App ── -->
+<div id="app">
+  <div class="top-bar">
+    <div class="top-bar-title" id="page-title">Board</div>
+    <div class="sync-indicator"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Live</span></div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="tab-panel active" id="panel-board">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-card stat-in"><div class="stat-num" id="stat-in">0</div><div class="stat-label">Clocked In</div></div>
+      <div class="stat-card stat-flag"><div class="stat-num" id="stat-flag">0</div><div class="stat-label">Flagged</div></div>
+      <div class="stat-card stat-noshow"><div class="stat-num" id="stat-noshow">0</div><div class="stat-label">No-shows</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <strong style="font-size:13px">Guard Status</strong>
+        <button class="btn btn-outline" style="padding:4px 10px;min-height:32px;font-size:12px" onclick="syncAll()"><i class="ti ti-refresh"></i> Refresh</button>
+      </div>
+      <div id="board-guards"></div>
+    </div>
+    <div class="section-title">Latest Announcements</div>
+    <div id="board-announcements"></div>
+  </div>
+
+  <!-- GUARDS -->
+  <div class="tab-panel" id="panel-guards">
+    <div class="filter-row" style="margin-bottom:10px">
+      <div class="search-bar" style="flex:1">
+        <i class="ti ti-search"></i>
+        <input type="text" id="guards-search" placeholder="Search name or post…" oninput="renderGuards()">
+      </div>
+      <span class="count-badge" id="guard-count-badge">0 guards</span>
+    </div>
+    <div class="filter-row" style="margin-bottom:12px;gap:8px">
+      <button class="btn btn-outline" onclick="openModal('modal-bulk')"><i class="ti ti-upload"></i> Bulk import</button>
+      <button class="btn btn-primary" onclick="openModal('modal-add-guard')"><i class="ti ti-plus"></i> Add one</button>
+    </div>
+    <div class="card" style="padding:0 16px" id="guards-list"></div>
+  </div>
+
+  <!-- CLOCK -->
+  <div class="tab-panel" id="panel-clock">
+    <div class="card" style="margin-bottom:12px">
+      <strong style="font-size:15px;display:block;margin-bottom:12px">Log Clock Event</strong>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label>Guard</label>
+          <select id="clock-guard"><option value="">— Select guard —</option></select>
+        </div>
+        <div>
+          <label>Action</label>
+          <select id="clock-action">
+            <option value="in">Clock IN</option>
+            <option value="out">Clock OUT</option>
+            <option value="flag">Flag — late / issue</option>
+            <option value="noshow">Mark no-show</option>
+          </select>
+        </div>
+        <div>
+          <label>Note (optional)</label>
+          <textarea id="clock-note" placeholder="Any details…" rows="2"></textarea>
+        </div>
+        <button class="btn btn-success btn-full" onclick="submitClock()"><i class="ti ti-clock-check"></i> Submit</button>
+      </div>
+    </div>
+    <div class="section-title">Recent Events (last 20)</div>
+    <div class="card" style="padding:0 16px" id="clock-events"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="tab-panel" id="panel-chat">
+    <div class="filter-row" style="margin-bottom:10px">
+      <button class="btn btn-outline" id="chat-filter-all" onclick="setChatFilter('all')">All</button>
+      <button class="btn btn-outline" id="chat-filter-bc" onclick="setChatFilter('broadcast')">Broadcasts only</button>
+      <button class="btn btn-primary" style="margin-left:auto" onclick="openModal('modal-broadcast')"><i class="ti ti-speakerphone"></i> Broadcast</button>
+    </div>
+    <div class="card" style="padding:10px 12px">
+      <div id="chat-messages"></div>
+      <div class="compose-area">
+        <textarea id="chat-input" placeholder="Message…" rows="1" onkeydown="chatKeydown(event)"></textarea>
+        <button class="btn btn-primary" onclick="sendMessage()" style="flex-shrink:0"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="tab-panel" id="panel-notes">
+    <div class="filter-row" style="margin-bottom:10px">
+      <div class="search-bar" style="flex:1">
+        <i class="ti ti-search"></i>
+        <input type="text" id="notes-search" placeholder="Search guard or note…" oninput="renderNotes()">
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-note')"><i class="ti ti-plus"></i> Add note</button>
+    </div>
+    <div id="notes-list"></div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="tab-panel" id="panel-export">
+    <div class="card" style="margin-bottom:12px">
+      <strong style="font-size:15px;display:block;margin-bottom:12px">Pay Summary</strong>
+      <div class="export-inputs">
+        <div><label>Default hourly rate ($)</label><input type="number" id="export-rate" value="18.00" step="0.01" min="0"></div>
+        <div><label>Event date label</label><input type="text" id="export-date" value="July 4, 2025"></div>
+      </div>
+      <p style="font-size:12px;color:var(--text-sec);margin-bottom:12px">Hours = first clock-in → last clock-out per guard. No-shows = 0 hrs. If still clocked in, counts to now.</p>
+      <div class="table-wrap">
+        <table class="pay-table" id="pay-table">
+          <thead><tr><th>Name</th><th>Post</th><th>Hours</th><th>Rate</th><th>Total</th></tr></thead>
+          <tbody id="pay-body"></tbody>
+          <tfoot><tr><td colspan="4">Total Payout</td><td id="pay-total">$0.00</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="export-btns">
+        <button class="btn btn-primary" onclick="downloadPayCSV()"><i class="ti ti-file-spreadsheet"></i> Pay CSV</button>
+        <button class="btn btn-outline" onclick="downloadEventLogCSV()"><i class="ti ti-file-text"></i> Full event log</button>
+      </div>
+    </div>
+    <div class="section-title">Event Summary</div>
+    <div class="summary-grid" id="summary-grid"></div>
+  </div>
+</div>
+
+<!-- ── Bottom Nav ── -->
+<nav id="bottom-nav" style="display:none">
+  <button class="nav-tab active" data-tab="board" onclick="switchTab('board')"><i class="ti ti-layout-dashboard"></i><span>Board</span></button>
+  <button class="nav-tab" data-tab="guards" onclick="switchTab('guards')"><i class="ti ti-users"></i><span>Guards</span></button>
+  <button class="nav-tab" data-tab="clock" onclick="switchTab('clock')"><i class="ti ti-clock-check"></i><span>Clock</span></button>
+  <button class="nav-tab" data-tab="chat" onclick="switchTab('chat')"><i class="ti ti-messages"></i><span>Chat</span></button>
+  <button class="nav-tab" data-tab="notes" onclick="switchTab('notes')"><i class="ti ti-notes"></i><span>Notes</span></button>
+  <button class="nav-tab" data-tab="export" onclick="switchTab('export')"><i class="ti ti-file-spreadsheet"></i><span>Export</span></button>
+</nav>
+
+<!-- ── Modals ── -->
+
+<!-- Add Guard -->
+<div class="modal-backdrop" id="modal-add-guard" onclick="backdropClose(event,'modal-add-guard')">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Add Guard</span><button class="modal-close" onclick="closeModal('modal-add-guard')">×</button></div>
+    <div><label>Full name *</label><input type="text" id="ag-name" placeholder="Jane Smith"></div>
+    <div><label>Badge / ID #</label><input type="text" id="ag-badge" placeholder="1234"></div>
+    <div><label>Post / Assignment</label><input type="text" id="ag-post" placeholder="Gate A"></div>
+    <div><label>Shift start</label><input type="text" id="ag-shift" placeholder="06:00"></div>
+    <div><label>Hourly rate ($)</label><input type="number" id="ag-rate" placeholder="18.00" step="0.01" min="0"></div>
+    <button class="btn btn-primary btn-full" onclick="addGuard()"><i class="ti ti-check"></i> Save</button>
+  </div>
+</div>
+
+<!-- Bulk Import -->
+<div class="modal-backdrop" id="modal-bulk" onclick="backdropClose(event,'modal-bulk')">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Bulk Import Guards</span><button class="modal-close" onclick="closeModal('modal-bulk')">×</button></div>
+    <p style="font-size:12px;color:var(--text-sec)">CSV format: <code>name,badge,post,shift,rate</code> — name is required.</p>
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+      <i class="ti ti-upload" style="font-size:28px;margin-bottom:6px;display:block"></i>
+      <div>Drop CSV here or <strong>click to browse</strong></div>
+      <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="fileSelected(event)">
+    </div>
+    <div style="text-align:center;color:var(--text-sec);font-size:12px">— or paste CSV —</div>
+    <textarea id="csv-paste" placeholder="name,badge,post,shift,rate&#10;John Doe,1001,Gate A,06:00,18.00" rows="5" oninput="parsePaste()"></textarea>
+    <div id="bulk-preview"></div>
+    <div id="bulk-status" style="font-size:13px;color:var(--text-sec)"></div>
+    <button class="btn btn-success btn-full" id="bulk-import-btn" disabled onclick="bulkImport()"><i class="ti ti-upload"></i> Import guards</button>
+  </div>
+</div>
+
+<!-- Add Note -->
+<div class="modal-backdrop" id="modal-add-note" onclick="backdropClose(event,'modal-add-note')">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Add Incident Note</span><button class="modal-close" onclick="closeModal('modal-add-note')">×</button></div>
+    <div><label>Guard (optional)</label><select id="note-guard"><option value="">— General note —</option></select></div>
+    <div><label>Note *</label><textarea id="note-text" placeholder="Describe the incident…" rows="4"></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="addNote()"><i class="ti ti-check"></i> Save Note</button>
+  </div>
+</div>
+
+<!-- Broadcast -->
+<div class="modal-backdrop" id="modal-broadcast" onclick="backdropClose(event,'modal-broadcast')">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Send Broadcast</span><button class="modal-close" onclick="closeModal('modal-broadcast')">×</button></div>
+    <p style="font-size:12px;color:var(--text-sec)">Broadcast messages appear on the Board tab for all supervisors.</p>
+    <div><label>Message *</label><textarea id="bc-text" placeholder="All units: …" rows="4"></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="sendBroadcast()"><i class="ti ti-speakerphone"></i> Send Broadcast</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// State
+// ─────────────────────────────────────────
+const state = { guards: [], events: [], messages: [], notes: [] };
+let currentSup = '';
+let currentTab = 'board';
+let chatFilter = 'all';
+let pollInterval = null;
+let bulkRows = [];
+
+// ─────────────────────────────────────────
+// Utilities
+// ─────────────────────────────────────────
+const colors = ['#185FA5','#3B6D11','#993C1D','#854F0B','#993556','#534AB7'];
+function avatarColor(name) { let h=0; for (let c of name) h=(h*31+c.charCodeAt(0))%colors.length; return colors[h]; }
+function initials(name) { return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function avatar(name) { return `<div class="avatar" style="background:${avatarColor(name)}">${initials(name)}</div>`; }
+
+function fmtTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString([], {month:'short',day:'numeric'}) + ' ' + fmtTime(ts);
+}
+
+function guardStatus(guardId) {
+  const evs = state.events.filter(e => e.guard_id === guardId).sort((a,b) => b.ts - a.ts);
+  return evs[0]?.action || 'none';
+}
+
+function statusPill(status) {
+  const map = { in:'pill-in', out:'pill-out', flag:'pill-flag', noshow:'pill-noshow', none:'pill-none' };
+  const label = { in:'Clocked In', out:'Clocked Out', flag:'Flagged', noshow:'No-show', none:'Not logged' };
+  return `<span class="pill ${map[status]||'pill-none'}">${label[status]||status}</span>`;
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ─────────────────────────────────────────
+// API helpers
+// ─────────────────────────────────────────
+async function api(path, opts = {}) {
+  const r = await fetch('/api/' + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ─────────────────────────────────────────
+// Login
+// ─────────────────────────────────────────
+async function doLogin() {
+  const name = document.getElementById('sup-name').value.trim();
+  const pin = document.getElementById('sup-pin').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
+  if (!/^\d{4}$/.test(pin)) { errEl.textContent = 'PIN must be exactly 4 digits.'; errEl.style.display = 'block'; return; }
+
+  try {
+    const { value: existingPin } = await api('meta?key=pin');
+    if (!existingPin) {
+      // First supervisor — set the PIN
+      await api('meta', { method:'POST', body: JSON.stringify({ key:'pin', value: pin }) });
+    } else if (existingPin !== pin) {
+      errEl.textContent = 'Incorrect PIN. Try again.';
+      errEl.style.display = 'block';
+      return;
+    }
+    currentSup = name;
+    sessionStorage.setItem('currentSup', name);
+    showApp();
+  } catch(e) {
+    errEl.textContent = 'Connection error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('sup-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('sup-name').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('sup-pin').focus(); });
+
+// ─────────────────────────────────────────
+// App init
+// ─────────────────────────────────────────
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('bottom-nav').style.display = 'flex';
+  syncAll();
+  pollInterval = setInterval(syncAll, 5000);
+}
+
+async function syncAll() {
+  setSyncing(true);
+  try {
+    const [guards, events, messages, notes] = await Promise.all([
+      api('guards'), api('events'), api('messages'), api('notes')
+    ]);
+    state.guards = guards;
+    state.events = events;
+    state.messages = messages;
+    state.notes = notes;
+    renderAll();
+    setSyncing(false);
+  } catch(e) {
+    setSyncing(false, true);
+  }
+}
+
+function setSyncing(active, error = false) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (active ? ' syncing' : '');
+  if (error) { dot.style.background = 'var(--red)'; lbl.textContent = 'Offline'; }
+  else if (active) { dot.style.background = ''; lbl.textContent = 'Syncing…'; }
+  else { dot.style.background = ''; lbl.textContent = 'Live'; }
+}
+
+function renderAll() {
+  renderBoard();
+  renderGuards();
+  renderClock();
+  renderChat();
+  renderNotes();
+  renderExport();
+  populateGuardSelects();
+}
+
+// ─────────────────────────────────────────
+// Tab switching
+// ─────────────────────────────────────────
+const tabTitles = { board:'Board', guards:'Guards', clock:'Clock', chat:'Chat', notes:'Notes', export:'Export' };
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.nav-tab[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('page-title').textContent = tabTitles[tab];
+  if (tab === 'chat') scrollChatBottom();
+  if (tab === 'export') renderExport();
+}
+
+// ─────────────────────────────────────────
+// Board
+// ─────────────────────────────────────────
+function renderBoard() {
+  const guards = state.guards;
+  const total = guards.length;
+  let inn = 0, flag = 0, noshow = 0;
+  guards.forEach(g => {
+    const s = guardStatus(g.id);
+    if (s === 'in') inn++;
+    else if (s === 'flag') flag++;
+    else if (s === 'noshow') noshow++;
+  });
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-in').textContent = inn;
+  document.getElementById('stat-flag').textContent = flag;
+  document.getElementById('stat-noshow').textContent = noshow;
+
+  const list = document.getElementById('board-guards');
+  if (!guards.length) { list.innerHTML = '<div style="padding:16px;color:var(--text-sec);text-align:center">No guards yet. Add guards in the Guards tab.</div>'; }
+  else {
+    list.innerHTML = guards.map(g => {
+      const s = guardStatus(g.id);
+      return `<div class="guard-row">
+        ${avatar(g.name)}
+        <div class="guard-info">
+          <div class="guard-name">${g.name}</div>
+          <div class="guard-meta">${g.post ? `<span class="post-badge">${g.post}</span> ` : ''}${g.shift || ''}</div>
+        </div>
+        ${statusPill(s)}
+      </div>`;
+    }).join('');
+  }
+
+  const broadcasts = state.messages.filter(m => m.type === 'broadcast').sort((a,b) => b.ts - a.ts).slice(0, 3);
+  const ann = document.getElementById('board-announcements');
+  if (!broadcasts.length) { ann.innerHTML = '<div style="color:var(--text-sec);font-size:13px">No broadcasts yet.</div>'; }
+  else {
+    ann.innerHTML = broadcasts.map(m => `
+      <div class="announcement">
+        <div class="announcement-meta">${m.sender} · ${fmtDate(m.ts)}</div>
+        <div>${escHtml(m.text)}</div>
+      </div>`).join('');
+  }
+}
+
+// ─────────────────────────────────────────
+// Guards
+// ─────────────────────────────────────────
+function renderGuards() {
+  const q = (document.getElementById('guards-search')?.value || '').toLowerCase();
+  const filtered = state.guards.filter(g =>
+    g.name.toLowerCase().includes(q) || (g.post||'').toLowerCase().includes(q)
+  );
+  document.getElementById('guard-count-badge').textContent = `${state.guards.length} guards`;
+  const list = document.getElementById('guards-list');
+  if (!filtered.length) { list.innerHTML = '<div style="padding:16px;color:var(--text-sec)">No guards match search.</div>'; return; }
+  list.innerHTML = filtered.map(g => {
+    const s = guardStatus(g.id);
+    return `<div class="guard-row">
+      ${avatar(g.name)}
+      <div class="guard-info">
+        <div class="guard-name">${escHtml(g.name)}</div>
+        <div class="guard-meta">
+          ${g.post ? `<span class="post-badge">${escHtml(g.post)}</span> ` : ''}
+          ${g.badge ? `#${escHtml(g.badge)} ` : ''}
+          ${g.shift ? `· ${escHtml(g.shift)} ` : ''}
+          ${g.rate ? `· $${parseFloat(g.rate).toFixed(2)}/hr` : ''}
+        </div>
+      </div>
+      ${statusPill(s)}
+    </div>`;
+  }).join('');
+}
+
+async function addGuard() {
+  const name = document.getElementById('ag-name').value.trim();
+  if (!name) { alert('Name is required.'); return; }
+  const guard = {
+    id: uid(),
+    name,
+    badge: document.getElementById('ag-badge').value.trim(),
+    post: document.getElementById('ag-post').value.trim(),
+    shift: document.getElementById('ag-shift').value.trim(),
+    rate: parseFloat(document.getElementById('ag-rate').value) || null
+  };
+  await api('guards', { method:'POST', body: JSON.stringify(guard) });
+  closeModal('modal-add-guard');
+  ['ag-name','ag-badge','ag-post','ag-shift','ag-rate'].forEach(id => document.getElementById(id).value = '');
+  await syncAll();
+}
+
+// ─────────────────────────────────────────
+// Bulk import
+// ─────────────────────────────────────────
+function parseCSV(raw) {
+  const lines = raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  const rows = [];
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = line.split(',').map(c => c.trim());
+    if (!cols[0] || cols[0].toLowerCase() === 'name') continue; // skip header
+    rows.push({ name: cols[0], badge: cols[1]||'', post: cols[2]||'', shift: cols[3]||'', rate: parseFloat(cols[4])||null });
+  }
+  return rows;
+}
+
+function showBulkPreview(rows) {
+  bulkRows = rows;
+  const existingNames = new Set(state.guards.map(g => g.name.toLowerCase()));
+  const newRows = rows.filter(r => !existingNames.has(r.name.toLowerCase()));
+  const skipped = rows.length - newRows.length;
+  document.getElementById('bulk-status').textContent = `${newRows.length} guards detected — ready to import. ${skipped ? `(${skipped} duplicates will be skipped)` : ''}`;
+  document.getElementById('bulk-import-btn').disabled = newRows.length === 0;
+  const preview = rows.slice(0,10);
+  document.getElementById('bulk-preview').innerHTML = `<table class="preview-table"><thead><tr><th>Name</th><th>Badge</th><th>Post</th><th>Shift</th><th>Rate</th></tr></thead><tbody>${
+    preview.map(r => `<tr><td>${escHtml(r.name)}</td><td>${escHtml(r.badge)}</td><td>${escHtml(r.post)}</td><td>${escHtml(r.shift)}</td><td>${r.rate||''}</td></tr>`).join('')
+  }</tbody></table>`;
+}
+
+function fileSelected(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { showBulkPreview(parseCSV(ev.target.result)); };
+  reader.readAsText(file);
+}
+function dragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+function dragLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
+function dropFile(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { showBulkPreview(parseCSV(ev.target.result)); };
+  reader.readAsText(file);
+}
+function parsePaste() { showBulkPreview(parseCSV(document.getElementById('csv-paste').value)); }
+
+async function bulkImport() {
+  const existingNames = new Set(state.guards.map(g => g.name.toLowerCase()));
+  const toInsert = bulkRows.filter(r => !existingNames.has(r.name.toLowerCase())).map(r => ({ ...r, id: uid() }));
+  const skipped = bulkRows.length - toInsert.length;
+  if (!toInsert.length) { alert('No new guards to import.'); return; }
+  await api('guards', { method:'POST', body: JSON.stringify(toInsert) });
+  closeModal('modal-bulk');
+  bulkRows = [];
+  document.getElementById('csv-paste').value = '';
+  document.getElementById('bulk-preview').innerHTML = '';
+  document.getElementById('bulk-status').textContent = '';
+  document.getElementById('bulk-import-btn').disabled = true;
+  await syncAll();
+  alert(`Imported ${toInsert.length} guards. Skipped ${skipped} duplicates.`);
+}
+
+// ─────────────────────────────────────────
+// Clock
+// ─────────────────────────────────────────
+function renderClock() {
+  const recent = [...state.events].sort((a,b) => b.ts - a.ts).slice(0, 20);
+  const guardMap = Object.fromEntries(state.guards.map(g => [g.id, g]));
+  const container = document.getElementById('clock-events');
+  if (!recent.length) { container.innerHTML = '<div style="padding:16px;color:var(--text-sec)">No events yet.</div>'; return; }
+  const actionLabel = { in:'Clocked In', out:'Clocked Out', flag:'Flagged', noshow:'No-show' };
+  container.innerHTML = recent.map(ev => {
+    const g = guardMap[ev.guard_id];
+    return `<div class="event-row">
+      ${g ? avatar(g.name) : '<div class="avatar" style="background:#ccc">?</div>'}
+      <div style="flex:1;min-width:0">
+        <div><strong>${g ? escHtml(g.name) : 'Unknown'}</strong> — <span class="event-action ${ev.action}">${actionLabel[ev.action]||ev.action}</span></div>
+        <div class="event-meta">${fmtDate(ev.ts)} · by ${escHtml(ev.by_sup)}${ev.note ? ` · ${escHtml(ev.note)}` : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitClock() {
+  const guardId = document.getElementById('clock-guard').value;
+  const action = document.getElementById('clock-action').value;
+  const note = document.getElementById('clock-note').value.trim();
+  if (!guardId) { alert('Please select a guard.'); return; }
+  await api('events', { method:'POST', body: JSON.stringify({ guardId, action, note, by: currentSup, ts: Date.now() }) });
+  document.getElementById('clock-note').value = '';
+  await syncAll();
+  switchTab('board');
+}
+
+// ─────────────────────────────────────────
+// Chat
+// ─────────────────────────────────────────
+function setChatFilter(f) {
+  chatFilter = f;
+  document.getElementById('chat-filter-all').className = 'btn ' + (f==='all' ? 'btn-primary' : 'btn-outline');
+  document.getElementById('chat-filter-bc').className = 'btn ' + (f==='broadcast' ? 'btn-primary' : 'btn-outline');
+  renderChat();
+}
+
+function renderChat() {
+  let msgs = state.messages;
+  if (chatFilter === 'broadcast') msgs = msgs.filter(m => m.type === 'broadcast');
+  const container = document.getElementById('chat-messages');
+  if (!msgs.length) { container.innerHTML = '<div style="color:var(--text-sec);text-align:center;padding:16px">No messages yet.</div>'; return; }
+  const prev = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
+  container.innerHTML = msgs.map(m => {
+    const isOwn = m.sender === currentSup;
+    const isBc = m.type === 'broadcast';
+    return `<div class="bubble-wrap ${isOwn ? 'own' : 'other'}">
+      <div class="bubble-meta">${escHtml(m.sender)} · ${fmtTime(m.ts)}${isBc ? ' 📢' : ''}</div>
+      <div class="bubble ${isOwn ? 'own' : 'other'} ${isBc ? 'broadcast' : ''}">${escHtml(m.text)}</div>
+    </div>`;
+  }).join('');
+  if (prev) scrollChatBottom();
+}
+
+function scrollChatBottom() { const c = document.getElementById('chat-messages'); c.scrollTop = c.scrollHeight; }
+
+function chatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+
+async function sendMessage() {
+  const text = document.getElementById('chat-input').value.trim();
+  if (!text) return;
+  document.getElementById('chat-input').value = '';
+  await api('messages', { method:'POST', body: JSON.stringify({ type:'message', sender: currentSup, text, ts: Date.now() }) });
+  await syncAll();
+  scrollChatBottom();
+}
+
+async function sendBroadcast() {
+  const text = document.getElementById('bc-text').value.trim();
+  if (!text) { alert('Enter a message.'); return; }
+  await api('messages', { method:'POST', body: JSON.stringify({ type:'broadcast', sender: currentSup, text, ts: Date.now() }) });
+  closeModal('modal-broadcast');
+  document.getElementById('bc-text').value = '';
+  await syncAll();
+}
+
+// ─────────────────────────────────────────
+// Notes
+// ─────────────────────────────────────────
+function renderNotes() {
+  const q = (document.getElementById('notes-search')?.value || '').toLowerCase();
+  const filtered = state.notes.filter(n =>
+    (n.guard_name||'').toLowerCase().includes(q) || (n.text||'').toLowerCase().includes(q)
+  );
+  const list = document.getElementById('notes-list');
+  if (!filtered.length) { list.innerHTML = '<div style="color:var(--text-sec);padding:8px">No notes yet.</div>'; return; }
+  list.innerHTML = filtered.map(n => `
+    <div class="note-card">
+      <div class="note-header">
+        <span class="note-guard">${escHtml(n.guard_name || 'General')}</span>
+        <span class="note-by">${escHtml(n.by_sup)} · ${fmtDate(n.ts)}</span>
+      </div>
+      <div class="note-text">${escHtml(n.text)}</div>
+    </div>`).join('');
+}
+
+async function addNote() {
+  const text = document.getElementById('note-text').value.trim();
+  if (!text) { alert('Note text is required.'); return; }
+  const guardId = document.getElementById('note-guard').value;
+  const guard = state.guards.find(g => g.id === guardId);
+  await api('notes', { method:'POST', body: JSON.stringify({ guardId: guardId || null, guardName: guard?.name || 'General', text, by: currentSup, ts: Date.now() }) });
+  closeModal('modal-add-note');
+  document.getElementById('note-text').value = '';
+  await syncAll();
+}
+
+// ─────────────────────────────────────────
+// Export / Pay
+// ─────────────────────────────────────────
+function calcHours(guardId) {
+  const evs = state.events.filter(e => e.guard_id === guardId).sort((a,b) => a.ts - b.ts);
+  // Check if no-show
+  const latest = evs[evs.length - 1];
+  if (latest?.action === 'noshow') return 0;
+
+  let ms = 0;
+  let clockInTs = null;
+  for (const ev of evs) {
+    if (ev.action === 'in') { clockInTs = ev.ts; }
+    else if (ev.action === 'out' && clockInTs !== null) { ms += ev.ts - clockInTs; clockInTs = null; }
+  }
+  if (clockInTs !== null) ms += Date.now() - clockInTs; // still clocked in
+  return Math.round(ms / 36000) / 100; // hours to 2dp
+}
+
+function renderExport() {
+  const defaultRate = parseFloat(document.getElementById('export-rate')?.value) || 18;
+  const tbody = document.getElementById('pay-body');
+  let totalPay = 0;
+  tbody.innerHTML = state.guards.map(g => {
+    const hours = calcHours(g.id);
+    const rate = parseFloat(g.rate) || defaultRate;
+    const pay = hours * rate;
+    totalPay += pay;
+    const status = guardStatus(g.id);
+    return `<tr>
+      <td>${escHtml(g.name)}</td>
+      <td>${escHtml(g.post||'')}</td>
+      <td>${hours.toFixed(2)}</td>
+      <td>$${rate.toFixed(2)}</td>
+      <td>$${pay.toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('pay-total').textContent = '$' + totalPay.toFixed(2);
+
+  // Summary cards
+  document.getElementById('summary-grid').innerHTML = [
+    ['Guards Rostered', state.guards.length],
+    ['Clock Events', state.events.length],
+    ['No-shows', state.events.filter(e => e.action === 'noshow').length],
+    ['Flagged', state.events.filter(e => e.action === 'flag').length],
+    ['Incident Notes', state.notes.length],
+    ['Chat Messages', state.messages.length],
+  ].map(([label, num]) => `<div class="summary-card"><div class="summary-num">${num}</div><div class="summary-label">${label}</div></div>`).join('');
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = filename;
+  a.click();
+}
+
+function downloadPayCSV() {
+  const defaultRate = parseFloat(document.getElementById('export-rate').value) || 18;
+  const dateLabel = document.getElementById('export-date').value;
+  const rows = [['Name','Badge','Post','Shift','Hours Worked','Hourly Rate','Total Pay','Status']];
+  state.guards.forEach(g => {
+    const hours = calcHours(g.id);
+    const rate = parseFloat(g.rate) || defaultRate;
+    rows.push([g.name, g.badge||'', g.post||'', g.shift||'', hours.toFixed(2), rate.toFixed(2), (hours*rate).toFixed(2), guardStatus(g.id)]);
+  });
+  downloadCSV(rows, `fpi-pay-${dateLabel.replace(/\s/g,'-')}.csv`);
+}
+
+function downloadEventLogCSV() {
+  const guardMap = Object.fromEntries(state.guards.map(g => [g.id, g]));
+  const rows = [['Timestamp','Guard Name','Badge','Post','Action','Note','Logged By']];
+  [...state.events].sort((a,b) => a.ts - b.ts).forEach(ev => {
+    const g = guardMap[ev.guard_id] || {};
+    rows.push([new Date(ev.ts).toISOString(), g.name||'Unknown', g.badge||'', g.post||'', ev.action, ev.note||'', ev.by_sup]);
+  });
+  downloadCSV(rows, 'fpi-event-log.csv');
+}
+
+// ─────────────────────────────────────────
+// Guard selects
+// ─────────────────────────────────────────
+function populateGuardSelects() {
+  const sorted = [...state.guards].sort((a,b) => a.name.localeCompare(b.name));
+  const opts = sorted.map(g => `<option value="${g.id}">${escHtml(g.name)}</option>`).join('');
+  const clockEl = document.getElementById('clock-guard');
+  const noteEl = document.getElementById('note-guard');
+  if (clockEl) { const v = clockEl.value; clockEl.innerHTML = '<option value="">— Select guard —</option>' + opts; clockEl.value = v; }
+  if (noteEl) { const v = noteEl.value; noteEl.innerHTML = '<option value="">— General note —</option>' + opts; noteEl.value = v; }
+}
+
+// ─────────────────────────────────────────
+// Modals
+// ─────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function backdropClose(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+// ─────────────────────────────────────────
+// XSS safety
+// ─────────────────────────────────────────
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─────────────────────────────────────────
+// Auto-resume session
+// ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = sessionStorage.getItem('currentSup');
+  if (saved) { currentSup = saved; showApp(); }
+});
+</script>
+</body>
+</html>

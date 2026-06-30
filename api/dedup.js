@@ -8,6 +8,10 @@ export default async function handler(req) {
 
     const [{ before }] = await sql`SELECT COUNT(*) AS before FROM guards`;
 
+    // Delete guards with no section assigned (leftover from before supervisor system)
+    await sql`DELETE FROM guards WHERE supervisor_id IS NULL OR supervisor_id = ''`;
+
+    // Delete name+supervisor_id duplicates, keeping the first inserted
     await sql`
       DELETE FROM guards WHERE id IN (
         SELECT id FROM (

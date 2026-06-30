@@ -395,6 +395,13 @@
     <div id="notes-list"></div>
   </div>
 
+  <!-- MAP -->
+  <div class="tab-panel" id="panel-map">
+    <div style="margin-top:4px;border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+      <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1bT8wPls4wyJCZua4oAUu1Ks6mFhLFW0&ehbc=2E312F&noprof=1" width="100%" height="520" style="display:block;border:none"></iframe>
+    </div>
+  </div>
+
   <!-- EXPORT -->
   <div class="tab-panel" id="panel-export">
     <div class="card" style="margin-bottom:12px">
@@ -429,6 +436,7 @@
   <button class="nav-tab" data-tab="chat" onclick="switchTab('chat')"><i class="ti ti-messages"></i><span>Chat</span></button>
   <button class="nav-tab" data-tab="notes" onclick="switchTab('notes')"><i class="ti ti-notes"></i><span>Notes</span></button>
   <button class="nav-tab" data-tab="export" onclick="switchTab('export')"><i class="ti ti-file-spreadsheet"></i><span>Export</span></button>
+  <button class="nav-tab" data-tab="map" onclick="switchTab('map')"><i class="ti ti-map-2"></i><span>Map</span></button>
 </nav>
 
 <!-- ── Modals ── -->
@@ -622,7 +630,7 @@ function renderAll() {
 // ─────────────────────────────────────────
 // Tab switching
 // ─────────────────────────────────────────
-const tabTitles = { board:'Board', guards:'Guards', clock:'Clock', chat:'Chat', notes:'Notes', export:'Export' };
+const tabTitles = { board:'Board', guards:'Guards', clock:'Clock', chat:'Chat', notes:'Notes', export:'Export', map:'Map' };
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));

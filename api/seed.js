@@ -101,24 +101,32 @@ export default async function handler(req) {
     await initTables();
     const sql = getDb();
 
+    // Remove duplicate guards (keep the earliest id per name+supervisor_id)
+    await sql`
+      DELETE FROM guards WHERE id IN (
+        SELECT id FROM (
+          SELECT id, ROW_NUMBER() OVER (PARTITION BY name, supervisor_id ORDER BY id) AS rn
+          FROM guards
+        ) t WHERE rn > 1
+      )
+    `;
+
     for (const s of SUPERVISORS) {
       await sql`INSERT INTO supervisors (id, name) VALUES (${s.id}, ${s.name}) ON CONFLICT (id) DO NOTHING`;
     }
 
     let inserted = 0;
     for (const g of GUARDS) {
-      const existing = await sql`SELECT id FROM guards WHERE name = ${g.name} AND supervisor_id = ${g.supervisor_id}`;
-      if (existing.length === 0) {
-        const id = crypto.randomUUID();
-        await sql`
-          INSERT INTO guards (id, name, badge, phone, post, shift, rate, notes, employment_type, supervisor_id)
-          VALUES (${id}, ${g.name}, ${g.badge||''}, ${g.phone||''}, ${g.post||''}, '', null, ${g.notes||''}, ${g.employment_type||''}, ${g.supervisor_id})
-        `;
-        inserted++;
-      }
+      const result = await sql`
+        INSERT INTO guards (id, name, badge, phone, post, shift, rate, notes, employment_type, supervisor_id)
+        VALUES (${crypto.randomUUID()}, ${g.name}, ${g.badge||''}, ${g.phone||''}, ${g.post||''}, '', null, ${g.notes||''}, ${g.employment_type||''}, ${g.supervisor_id})
+        ON CONFLICT (name, supervisor_id) DO NOTHING
+      `;
+      if (result.count > 0) inserted++;
     }
 
-    return jsonResponse({ ok: true, supervisors: SUPERVISORS.length, guards_inserted: inserted, guards_total: GUARDS.length });
+    const [{ total }] = await sql`SELECT COUNT(*) AS total FROM guards`;
+    return jsonResponse({ ok: true, supervisors: SUPERVISORS.length, guards_inserted: inserted, guards_total: parseInt(total) });
   } catch (e) {
     return errorResponse(e.message);
   }

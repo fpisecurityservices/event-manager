@@ -33,6 +33,7 @@ export async function initTables() {
   await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS notes TEXT`;
   await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS employment_type TEXT`;
   await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS supervisor_id TEXT`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS guards_name_sup_uidx ON guards(name, supervisor_id)`;
   await sql`
     CREATE TABLE IF NOT EXISTS events (
       id TEXT PRIMARY KEY,

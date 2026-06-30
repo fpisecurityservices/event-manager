@@ -10,51 +10,48 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   :root {
-    --blue: #185FA5;
-    --blue-dk: #134d87;
-    --green: #2d5a0e;
-    --green-lt: #3B6D11;
-    --amber: #854F0B;
-    --red: #A32D2D;
-    --text: #1a1a1a;
-    --text-sec: #5a5a5a;
+    --blue: #185FA5; --blue-dk: #134d87;
+    --green: #2d5a0e; --green-lt: #3B6D11;
+    --amber: #854F0B; --red: #A32D2D;
+    --text: #1a1a1a; --text-sec: #5a5a5a;
     --border: rgba(0,0,0,0.11);
-    --bg: #f0f0ee;
-    --card: #ffffff;
-    --bg-sec: #f5f5f3;
-    --nav-h: 68px;
-    --safe-b: env(safe-area-inset-bottom, 0px);
+    --bg: #f0f0ee; --card: #fff; --bg-sec: #f5f5f3;
+    --nav-h: 68px; --safe-b: env(safe-area-inset-bottom, 0px);
   }
-
-  html { height: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    font-size: 15px; line-height: 1.5; background: var(--bg); color: var(--text);
-    height: 100%; -webkit-font-smoothing: antialiased;
-  }
+  html, body { height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.5; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
   /* ── Layout ── */
   #login-screen, #app { max-width: 640px; margin: 0 auto; padding: 0 14px; }
   #app { padding-bottom: calc(var(--nav-h) + var(--safe-b) + 8px); display: none; }
 
   /* ── Login ── */
-  #login-screen {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; min-height: 100vh; gap: 20px; padding: 24px 20px;
-  }
-  .login-logo { font-size: 26px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; text-align: center; }
+  #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; padding: 24px 16px; }
+  .login-logo { font-size: 26px; font-weight: 800; color: var(--blue); text-align: center; }
   .login-sub { color: var(--text-sec); font-size: 16px; text-align: center; }
-  .login-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-    padding: 28px 22px; width: 100%; max-width: 360px;
-    display: flex; flex-direction: column; gap: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  .login-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px 20px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .login-card h2 { font-size: 17px; font-weight: 700; }
+  #login-error { color: var(--red); font-size: 14px; display: none; background: #fdf0f0; border-radius: 10px; padding: 10px 14px; }
+
+  /* Supervisor selector grid */
+  .sup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sup-btn {
+    background: var(--bg-sec); border: 2px solid var(--border); border-radius: 12px;
+    padding: 12px 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+    color: var(--text); text-align: center; line-height: 1.3;
+    touch-action: manipulation; transition: all 0.12s;
+    -webkit-user-select: none; user-select: none;
   }
-  .login-card h2 { font-size: 18px; font-weight: 600; }
-  #login-error { color: var(--red); font-size: 14px; display: none; background: #fdf0f0; border-radius: 8px; padding: 10px 12px; }
-  #connecting-banner { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #7a5800; text-align: center; display: none; margin-bottom: 8px; }
+  .sup-btn:active { transform: scale(0.96); }
+  .sup-btn.selected { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .sup-btn.selected .sup-icon { color: #fff; }
+  .sup-icon { display: block; font-size: 20px; margin-bottom: 4px; color: var(--text-sec); }
+  .sup-btn.selected .sup-icon { color: rgba(255,255,255,0.85); }
+
+  /* PIN area */
+  .pin-area { display: flex; flex-direction: column; gap: 6px; }
+  .pin-area label { font-size: 13px; font-weight: 600; color: var(--text-sec); }
 
   /* ── Forms ── */
   label { font-size: 13px; font-weight: 500; color: var(--text-sec); display: block; margin-bottom: 5px; }
@@ -69,13 +66,7 @@
   textarea { resize: none; min-height: 90px; font-size: 15px; }
 
   /* ── Buttons ── */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    padding: 13px 18px; border-radius: 10px; font-size: 15px; font-weight: 600;
-    border: none; cursor: pointer; min-height: 50px; touch-action: manipulation;
-    transition: filter 0.12s, transform 0.08s;
-    -webkit-user-select: none; user-select: none;
-  }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 13px 18px; border-radius: 10px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; min-height: 50px; touch-action: manipulation; transition: filter 0.12s, transform 0.08s; -webkit-user-select: none; user-select: none; }
   .btn:active { filter: brightness(0.88); transform: scale(0.97); }
   .btn:disabled { opacity: 0.45; pointer-events: none; }
   .btn i { font-size: 18px; }
@@ -87,6 +78,7 @@
   .btn-full { width: 100%; }
   .btn-sm { min-height: 38px; padding: 7px 12px; font-size: 13px; border-radius: 8px; }
   .btn-sm i { font-size: 15px; }
+  .btn-icon { min-height: 36px; width: 36px; padding: 0; border-radius: 8px; }
 
   /* ── Cards ── */
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
@@ -98,44 +90,27 @@
   .top-bar-left { display: flex; flex-direction: column; }
   .top-bar-title { font-size: 22px; font-weight: 700; line-height: 1.1; }
   .top-bar-sup { font-size: 12px; color: var(--text-sec); margin-top: 1px; }
-  .sync-indicator { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-sec); background: var(--bg-sec); border: 1px solid var(--border); border-radius: 20px; padding: 5px 10px; }
+  .sync-indicator { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-sec); background: var(--bg-sec); border: 1px solid var(--border); border-radius: 20px; padding: 5px 10px; white-space: nowrap; }
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #4caf50; flex-shrink: 0; }
   .sync-dot.syncing { background: var(--amber); animation: pulse 1s infinite; }
   .sync-dot.error { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
   /* ── Bottom Nav ── */
-  #bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--card); border-top: 1px solid var(--border);
-    height: calc(var(--nav-h) + var(--safe-b));
-    display: flex; overflow-x: auto; overflow-y: hidden;
-    scrollbar-width: none; z-index: 100;
-    padding-bottom: var(--safe-b);
-    -webkit-overflow-scrolling: touch;
-  }
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); height: calc(var(--nav-h) + var(--safe-b)); display: flex; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; z-index: 100; padding-bottom: var(--safe-b); -webkit-overflow-scrolling: touch; }
   #bottom-nav::-webkit-scrollbar { display: none; }
   @media (min-width: 640px) { #bottom-nav { max-width: 640px; left: 50%; transform: translateX(-50%); } }
-  .nav-tab {
-    flex: 0 0 auto; min-width: 72px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 3px;
-    cursor: pointer; border: none; background: transparent;
-    color: var(--text-sec); font-size: 10px; font-weight: 500; font-family: inherit;
-    padding: 6px 8px; touch-action: manipulation; transition: color 0.12s;
-    -webkit-user-select: none; user-select: none;
-  }
+  .nav-tab { flex: 1; min-width: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; border: none; background: transparent; color: var(--text-sec); font-size: 10px; font-weight: 500; font-family: inherit; padding: 6px 4px; touch-action: manipulation; transition: color 0.12s; -webkit-user-select: none; user-select: none; }
   .nav-tab i { font-size: 22px; }
-  .nav-tab span { font-size: 10px; }
   .nav-tab.active { color: var(--blue); }
-  .nav-tab.active i { font-weight: 700; }
 
   /* ── Status pills ── */
   .pill { display: inline-flex; align-items: center; font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
-  .pill-in    { background: #e0f2e0; color: var(--green); }
-  .pill-out   { background: #ebebeb; color: #4a4a4a; }
-  .pill-flag  { background: #fff3e0; color: var(--amber); }
-  .pill-noshow{ background: #fde8e8; color: var(--red); }
-  .pill-none  { background: #ebebeb; color: #888; }
+  .pill-in     { background: #e0f2e0; color: var(--green); }
+  .pill-out    { background: #ebebeb; color: #4a4a4a; }
+  .pill-flag   { background: #fff3e0; color: var(--amber); }
+  .pill-noshow { background: #fde8e8; color: var(--red); }
+  .pill-none   { background: #ebebeb; color: #888; }
 
   /* ── Avatar ── */
   .avatar { width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
@@ -150,31 +125,20 @@
   .stat-noshow .stat-num{ color: var(--red); }
 
   /* ── Guard rows ── */
-  .guard-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); min-height: 64px; }
+  .guard-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); min-height: 68px; }
   .guard-row:last-child { border-bottom: none; }
   .guard-info { flex: 1; min-width: 0; }
   .guard-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .guard-meta { font-size: 13px; color: var(--text-sec); margin-top: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .guard-meta { font-size: 13px; color: var(--text-sec); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .post-badge { display: inline-block; background: var(--bg-sec); border: 1px solid var(--border); border-radius: 5px; font-size: 12px; padding: 2px 7px; font-weight: 500; }
+  .phone-link { display: inline-flex; align-items: center; gap: 4px; color: var(--blue); font-weight: 600; font-size: 13px; text-decoration: none; background: #eef4fc; border-radius: 6px; padding: 3px 8px; }
+  .phone-link i { font-size: 13px; }
+  .guard-note { font-size: 12px; color: var(--amber); font-weight: 500; display: flex; align-items: center; gap-3px; }
+  .guard-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-  /* ── Announcements ── */
-  .announcement { border-left: 4px solid var(--blue); padding: 10px 14px; background: #eef4fc; border-radius: 0 10px 10px 0; margin-bottom: 8px; }
-  .announcement-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 3px; font-weight: 500; }
-  .announcement-text { font-size: 14px; }
-
-  /* ── Chat ── */
-  #chat-messages { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; min-height: 240px; max-height: calc(100vh - 280px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .bubble-wrap { display: flex; flex-direction: column; }
-  .bubble-wrap.own   { align-items: flex-end; }
-  .bubble-wrap.other { align-items: flex-start; }
-  .bubble-meta { font-size: 11px; color: var(--text-sec); margin-bottom: 3px; font-weight: 500; }
-  .bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.45; word-break: break-word; }
-  .bubble.own   { background: #d0ebd0; color: #1a3a1a; border-bottom-right-radius: 4px; }
-  .bubble.other { background: #ebebeb; color: var(--text); border-bottom-left-radius: 4px; }
-  .bubble.broadcast { border-left: 4px solid var(--blue); background: #e8f0fb; border-radius: 0 14px 14px 0; }
-  .compose-area { display: flex; gap: 8px; align-items: flex-end; padding-top: 10px; border-top: 1px solid var(--border); }
-  .compose-area textarea { min-height: 50px; max-height: 120px; font-size: 15px; }
-  .compose-area .btn { flex-shrink: 0; min-height: 50px; width: 50px; padding: 0; border-radius: 50%; }
+  /* ── Announcements / Board ── */
+  .board-status-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .board-status-row:last-child { border-bottom: none; }
 
   /* ── Export table ── */
   .pay-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -190,18 +154,9 @@
   .summary-label { font-size: 11px; color: var(--text-sec); margin-top: 2px; font-weight: 500; }
 
   /* ── Modals ── */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-    z-index: 200; display: none; align-items: flex-end; justify-content: center;
-  }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
   .modal-backdrop.open { display: flex; }
-  .modal {
-    background: var(--card); border-radius: 20px 20px 0 0;
-    padding: 8px 20px 20px; padding-bottom: calc(20px + var(--safe-b));
-    width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 14px;
-    -webkit-overflow-scrolling: touch;
-  }
+  .modal { background: var(--card); border-radius: 20px 20px 0 0; padding: 8px 20px 20px; padding-bottom: calc(20px + var(--safe-b)); width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; -webkit-overflow-scrolling: touch; }
   .modal-drag { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 8px auto 4px; flex-shrink: 0; }
   .modal-header { display: flex; align-items: center; justify-content: space-between; }
   .modal-title { font-size: 18px; font-weight: 700; }
@@ -228,7 +183,7 @@
   .note-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
   .note-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; gap: 8px; }
   .note-guard { font-weight: 600; font-size: 15px; }
-  .note-by { font-size: 11px; color: var(--text-sec); text-align: right; line-height: 1.4; flex-shrink: 0; }
+  .note-by { font-size: 11px; color: var(--text-sec); text-align: right; flex-shrink: 0; }
   .note-text { font-size: 14px; color: var(--text); line-height: 1.5; }
 
   /* ── Search ── */
@@ -240,7 +195,7 @@
   .tab-panel { display: none; padding-top: 2px; }
   .tab-panel.active { display: block; }
 
-  .filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
   .count-badge { background: var(--bg-sec); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 13px; color: var(--text-sec); font-weight: 500; white-space: nowrap; }
 
   /* ── Export inputs ── */
@@ -250,7 +205,7 @@
 
   /* ── Clock mode tabs ── */
   .mode-tabs { display: flex; background: var(--bg-sec); border: 1px solid var(--border); border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 14px; }
-  .mode-tab { flex: 1; padding: 10px 6px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-sec); transition: all 0.15s; touch-action: manipulation; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .mode-tab { flex: 1; padding: 10px 6px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-sec); transition: all 0.15s; touch-action: manipulation; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; }
   .mode-tab i { font-size: 20px; }
   .mode-tab.active { background: var(--card); color: var(--blue); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
@@ -266,8 +221,9 @@
   .rc-bar { height: 100%; background: var(--blue); border-radius: 20px; transition: width 0.4s ease; }
   .rc-count { font-size: 15px; font-weight: 700; color: var(--blue); white-space: nowrap; }
   .rc-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px; text-align: center; margin-bottom: 10px; }
-  .rc-name { font-size: 24px; font-weight: 800; margin: 14px 0 5px; }
-  .rc-post { font-size: 14px; color: var(--text-sec); margin-bottom: 20px; font-weight: 500; }
+  .rc-name { font-size: 22px; font-weight: 800; margin: 14px 0 4px; }
+  .rc-post { font-size: 13px; color: var(--text-sec); margin-bottom: 6px; font-weight: 500; }
+  .rc-phone { display: inline-flex; align-items: center; gap: 6px; color: var(--blue); font-weight: 700; font-size: 16px; text-decoration: none; background: #eef4fc; border-radius: 10px; padding: 8px 16px; margin-bottom: 18px; }
   .rc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
   .rc-actions .btn { min-height: 60px; font-size: 15px; border-radius: 12px; flex-direction: column; gap: 4px; }
   .rc-actions .btn i { font-size: 24px; }
@@ -275,29 +231,35 @@
   .rc-skip:active { background: var(--bg-sec); }
   .rc-done-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .rc-done-item:last-child { border-bottom: none; }
+
+  /* ── Roster load banner ── */
+  .roster-banner { background: #eef4fc; border: 1px solid #c5d9f5; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .roster-banner-text { font-size: 14px; font-weight: 500; }
 </style>
 </head>
 <body>
-
-<!-- ── Connecting banner ── -->
-<div id="connecting-banner">Connecting to server…</div>
 
 <!-- ── Login ── -->
 <div id="login-screen">
   <div class="login-logo">FPI Security Services</div>
   <div class="login-sub">July 4th Event Manager</div>
   <div class="login-card">
-    <h2>Supervisor Login</h2>
-    <div>
-      <label>Your name</label>
-      <input type="text" id="sup-name" placeholder="First Last" autocomplete="name">
+    <h2>Select your section</h2>
+    <div class="sup-grid" id="sup-grid">
+      <button class="sup-btn" data-id="viv-jenn" onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Vivian &amp; Jennifer</button>
+      <button class="sup-btn" data-id="allen"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Gazwin Allen</button>
+      <button class="sup-btn" data-id="boyle"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>William Boyle</button>
+      <button class="sup-btn" data-id="kevin"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Kevin Amaya</button>
+      <button class="sup-btn" data-id="moya"     onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Ander Moya</button>
+      <button class="sup-btn" data-id="peter"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Peter Sekusan</button>
+      <button class="sup-btn" data-id="rocha"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Harold Rocha</button>
     </div>
-    <div>
+    <div class="pin-area">
       <label>Event PIN (4 digits)</label>
       <input type="password" id="sup-pin" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]{4}">
     </div>
     <div id="login-error"></div>
-    <button class="btn btn-primary btn-full" onclick="doLogin()">Enter Dashboard</button>
+    <button class="btn btn-primary btn-full" onclick="doLogin()"><i class="ti ti-door-enter"></i> Enter Dashboard</button>
   </div>
 </div>
 
@@ -314,7 +276,7 @@
   <!-- BOARD -->
   <div class="tab-panel active" id="panel-board">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">My Guards</div></div>
       <div class="stat-card stat-in"><div class="stat-num" id="stat-in">0</div><div class="stat-label">Clocked In</div></div>
       <div class="stat-card stat-flag"><div class="stat-num" id="stat-flag">0</div><div class="stat-label">Flagged</div></div>
       <div class="stat-card stat-noshow"><div class="stat-num" id="stat-noshow">0</div><div class="stat-label">No-shows</div></div>
@@ -326,22 +288,21 @@
       </div>
       <div id="board-guards"></div>
     </div>
-    <div class="section-title">Latest Announcements</div>
-    <div id="board-announcements"></div>
   </div>
 
   <!-- GUARDS -->
   <div class="tab-panel" id="panel-guards">
-    <div class="filter-row" style="margin-bottom:10px">
+    <div class="filter-row">
       <div class="search-bar" style="flex:1">
         <i class="ti ti-search"></i>
-        <input type="text" id="guards-search" placeholder="Search name or post…" oninput="renderGuards()">
+        <input type="text" id="guards-search" placeholder="Search name or badge…" oninput="renderGuards()">
       </div>
-      <span class="count-badge" id="guard-count-badge">0 guards</span>
+      <span class="count-badge" id="guard-count-badge">0</span>
     </div>
-    <div class="filter-row" style="margin-bottom:12px;gap:8px">
+    <div id="roster-banner-wrap"></div>
+    <div class="filter-row">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-guard')"><i class="ti ti-plus"></i> Add guard</button>
       <button class="btn btn-outline btn-sm" onclick="openModal('modal-bulk')"><i class="ti ti-upload"></i> Bulk import</button>
-      <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-guard')"><i class="ti ti-plus"></i> Add one</button>
     </div>
     <div class="card" style="padding:0 16px" id="guards-list"></div>
   </div>
@@ -349,22 +310,18 @@
   <!-- CLOCK -->
   <div class="tab-panel" id="panel-clock">
     <div class="mode-tabs">
-      <button class="mode-tab active" id="mode-tab-single" onclick="setClockMode('single')"><i class="ti ti-user"></i> Single</button>
-      <button class="mode-tab" id="mode-tab-multi" onclick="setClockMode('multi')"><i class="ti ti-users"></i> Multi-select</button>
-      <button class="mode-tab" id="mode-tab-rollcall" onclick="setClockMode('rollcall')"><i class="ti ti-clipboard-list"></i> Roll Call</button>
+      <button class="mode-tab active" id="mode-tab-single"   onclick="setClockMode('single')"><i class="ti ti-user"></i>Single</button>
+      <button class="mode-tab"        id="mode-tab-multi"    onclick="setClockMode('multi')"><i class="ti ti-users"></i>Multi</button>
+      <button class="mode-tab"        id="mode-tab-rollcall" onclick="setClockMode('rollcall')"><i class="ti ti-clipboard-list"></i>Roll Call</button>
     </div>
 
-    <!-- Single mode -->
+    <!-- Single -->
     <div id="clock-mode-single">
       <div class="card" style="margin-bottom:12px">
-        <strong style="font-size:15px;display:block;margin-bottom:12px">Log Clock Event</strong>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div>
-            <label>Guard</label>
-            <select id="clock-guard"><option value="">— Select guard —</option></select>
-          </div>
-          <div>
-            <label>Action</label>
+        <strong style="font-size:16px;display:block;margin-bottom:14px">Log Clock Event</strong>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div><label>Guard</label><select id="clock-guard"><option value="">— Select guard —</option></select></div>
+          <div><label>Action</label>
             <select id="clock-action">
               <option value="in">Clock IN</option>
               <option value="out">Clock OUT</option>
@@ -372,10 +329,7 @@
               <option value="noshow">Mark no-show</option>
             </select>
           </div>
-          <div>
-            <label>Note (optional)</label>
-            <textarea id="clock-note" placeholder="Any details…" rows="2"></textarea>
-          </div>
+          <div><label>Note (optional)</label><textarea id="clock-note" placeholder="Any details…" rows="2"></textarea></div>
           <button class="btn btn-success btn-full" onclick="submitClock()"><i class="ti ti-clock-check"></i> Submit</button>
         </div>
       </div>
@@ -383,7 +337,7 @@
       <div class="card" style="padding:0 16px" id="clock-events"></div>
     </div>
 
-    <!-- Multi-select mode -->
+    <!-- Multi-select -->
     <div id="clock-mode-multi" style="display:none">
       <div class="card" style="margin-bottom:10px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -394,18 +348,15 @@
             <button class="btn btn-outline btn-sm" onclick="multiSelectNotIn()">Not in</button>
           </div>
         </div>
-        <div style="position:relative;margin-bottom:8px">
-          <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-sec)"></i>
-          <input type="text" id="multi-search" placeholder="Filter guards…" style="padding-left:34px" oninput="renderMultiSelect()">
+        <div class="search-bar" style="margin-bottom:8px">
+          <i class="ti ti-search"></i>
+          <input type="text" id="multi-search" placeholder="Filter guards…" oninput="renderMultiSelect()">
         </div>
-        <div id="multi-guard-list" style="max-height:40vh;overflow-y:auto;padding:0 0 4px"></div>
+        <div id="multi-guard-list" style="max-height:38vh;overflow-y:auto;padding:0 0 4px"></div>
       </div>
-      <div class="card" style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <strong style="font-size:13px"><span id="multi-selected-count">0</span> selected</strong>
-        </div>
-        <div>
-          <label>Action to apply</label>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <strong style="font-size:13px"><span id="multi-selected-count">0</span> selected</strong>
+        <div><label>Action to apply</label>
           <select id="multi-action">
             <option value="in">Clock IN</option>
             <option value="out">Clock OUT</option>
@@ -413,15 +364,12 @@
             <option value="noshow">Mark no-show</option>
           </select>
         </div>
-        <div>
-          <label>Note (optional)</label>
-          <textarea id="multi-note" placeholder="Applies to all selected…" rows="2"></textarea>
-        </div>
+        <div><label>Note (optional)</label><textarea id="multi-note" placeholder="Applies to all selected…" rows="2"></textarea></div>
         <button class="btn btn-success btn-full" onclick="submitMulti()"><i class="ti ti-clock-check"></i> Submit for selected</button>
       </div>
     </div>
 
-    <!-- Roll Call mode -->
+    <!-- Roll Call -->
     <div id="clock-mode-rollcall" style="display:none">
       <div class="rc-progress">
         <div class="rc-bar-wrap"><div class="rc-bar" id="rc-bar" style="width:0%"></div></div>
@@ -436,25 +384,9 @@
     </div>
   </div>
 
-  <!-- CHAT -->
-  <div class="tab-panel" id="panel-chat">
-    <div class="filter-row" style="margin-bottom:10px">
-      <button class="btn btn-outline btn-sm" id="chat-filter-all" onclick="setChatFilter('all')">All</button>
-      <button class="btn btn-outline btn-sm" id="chat-filter-bc" onclick="setChatFilter('broadcast')">Broadcasts only</button>
-      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('modal-broadcast')"><i class="ti ti-speakerphone"></i> Broadcast</button>
-    </div>
-    <div class="card" style="padding:10px 12px">
-      <div id="chat-messages"></div>
-      <div class="compose-area">
-        <textarea id="chat-input" placeholder="Message…" rows="1" onkeydown="chatKeydown(event)"></textarea>
-        <button class="btn btn-primary" onclick="sendMessage()" style="flex-shrink:0"><i class="ti ti-send"></i></button>
-      </div>
-    </div>
-  </div>
-
   <!-- NOTES -->
   <div class="tab-panel" id="panel-notes">
-    <div class="filter-row" style="margin-bottom:10px">
+    <div class="filter-row">
       <div class="search-bar" style="flex:1">
         <i class="ti ti-search"></i>
         <input type="text" id="notes-search" placeholder="Search guard or note…" oninput="renderNotes()">
@@ -474,38 +406,37 @@
   <!-- EXPORT -->
   <div class="tab-panel" id="panel-export">
     <div class="card" style="margin-bottom:12px">
-      <strong style="font-size:15px;display:block;margin-bottom:12px">Pay Summary</strong>
+      <strong style="font-size:16px;display:block;margin-bottom:14px">Pay Summary — My Section</strong>
       <div class="export-inputs">
-        <div><label>Default hourly rate ($)</label><input type="number" id="export-rate" value="18.00" step="0.01" min="0"></div>
-        <div><label>Event date label</label><input type="text" id="export-date" value="July 4, 2025"></div>
+        <div><label>Default rate ($/hr)</label><input type="number" id="export-rate" value="18.00" step="0.01" min="0"></div>
+        <div><label>Event date</label><input type="text" id="export-date" value="July 4, 2025"></div>
       </div>
-      <p style="font-size:12px;color:var(--text-sec);margin-bottom:12px">Hours = first clock-in → last clock-out per guard. No-shows = 0 hrs. If still clocked in, counts to now.</p>
+      <p style="font-size:12px;color:var(--text-sec);margin-bottom:12px">Hours = first clock-in → last clock-out. No-shows = 0 hrs. Still clocked in counts to now.</p>
       <div class="table-wrap">
-        <table class="pay-table" id="pay-table">
-          <thead><tr><th>Name</th><th>Post</th><th>Hours</th><th>Rate</th><th>Total</th></tr></thead>
+        <table class="pay-table">
+          <thead><tr><th>Name</th><th>Badge</th><th>Hours</th><th>Rate</th><th>Total</th></tr></thead>
           <tbody id="pay-body"></tbody>
           <tfoot><tr><td colspan="4">Total Payout</td><td id="pay-total">$0.00</td></tr></tfoot>
         </table>
       </div>
       <div class="export-btns">
         <button class="btn btn-primary" onclick="downloadPayCSV()"><i class="ti ti-file-spreadsheet"></i> Pay CSV</button>
-        <button class="btn btn-outline" onclick="downloadEventLogCSV()"><i class="ti ti-file-text"></i> Full event log</button>
+        <button class="btn btn-outline" onclick="downloadEventLogCSV()"><i class="ti ti-file-text"></i> Event log</button>
       </div>
     </div>
-    <div class="section-title">Event Summary</div>
+    <div class="section-title">Section Summary</div>
     <div class="summary-grid" id="summary-grid"></div>
   </div>
 </div>
 
-<!-- ── Bottom Nav ── -->
+<!-- ── Bottom Nav (6 tabs) ── -->
 <nav id="bottom-nav" style="display:none">
-  <button class="nav-tab active" data-tab="board" onclick="switchTab('board')"><i class="ti ti-layout-dashboard"></i><span>Board</span></button>
-  <button class="nav-tab" data-tab="guards" onclick="switchTab('guards')"><i class="ti ti-users"></i><span>Guards</span></button>
-  <button class="nav-tab" data-tab="clock" onclick="switchTab('clock')"><i class="ti ti-clock-check"></i><span>Clock</span></button>
-  <button class="nav-tab" data-tab="chat" onclick="switchTab('chat')"><i class="ti ti-messages"></i><span>Chat</span></button>
-  <button class="nav-tab" data-tab="notes" onclick="switchTab('notes')"><i class="ti ti-notes"></i><span>Notes</span></button>
-  <button class="nav-tab" data-tab="export" onclick="switchTab('export')"><i class="ti ti-file-spreadsheet"></i><span>Export</span></button>
-  <button class="nav-tab" data-tab="map" onclick="switchTab('map')"><i class="ti ti-map-2"></i><span>Map</span></button>
+  <button class="nav-tab active" data-tab="board"   onclick="switchTab('board')"><i class="ti ti-layout-dashboard"></i><span>Board</span></button>
+  <button class="nav-tab"        data-tab="guards"  onclick="switchTab('guards')"><i class="ti ti-users"></i><span>Guards</span></button>
+  <button class="nav-tab"        data-tab="clock"   onclick="switchTab('clock')"><i class="ti ti-clock-check"></i><span>Clock</span></button>
+  <button class="nav-tab"        data-tab="notes"   onclick="switchTab('notes')"><i class="ti ti-notes"></i><span>Notes</span></button>
+  <button class="nav-tab"        data-tab="map"     onclick="switchTab('map')"><i class="ti ti-map-2"></i><span>Map</span></button>
+  <button class="nav-tab"        data-tab="export"  onclick="switchTab('export')"><i class="ti ti-file-spreadsheet"></i><span>Export</span></button>
 </nav>
 
 <!-- ── Modals ── -->
@@ -515,12 +446,13 @@
   <div class="modal">
     <div class="modal-drag"></div>
     <div class="modal-header"><span class="modal-title">Add Guard</span><button class="modal-close" onclick="closeModal('modal-add-guard')">×</button></div>
-    <div><label>Full name *</label><input type="text" id="ag-name" placeholder="Jane Smith"></div>
+    <div><label>Full name *</label><input type="text" id="ag-name" placeholder="Jane Smith" autocomplete="off"></div>
+    <div><label>Phone number</label><input type="tel" id="ag-phone" placeholder="305-555-1234"></div>
     <div><label>Badge / ID #</label><input type="text" id="ag-badge" placeholder="1234"></div>
     <div><label>Post / Assignment</label><input type="text" id="ag-post" placeholder="Gate A"></div>
-    <div><label>Shift start</label><input type="text" id="ag-shift" placeholder="06:00"></div>
+    <div><label>Notes</label><input type="text" id="ag-notes" placeholder="Needs transportation, etc."></div>
     <div><label>Hourly rate ($)</label><input type="number" id="ag-rate" placeholder="18.00" step="0.01" min="0"></div>
-    <button class="btn btn-primary btn-full" onclick="addGuard()"><i class="ti ti-check"></i> Save</button>
+    <button class="btn btn-primary btn-full" onclick="addGuard()"><i class="ti ti-check"></i> Save Guard</button>
   </div>
 </div>
 
@@ -529,14 +461,14 @@
   <div class="modal">
     <div class="modal-drag"></div>
     <div class="modal-header"><span class="modal-title">Bulk Import Guards</span><button class="modal-close" onclick="closeModal('modal-bulk')">×</button></div>
-    <p style="font-size:12px;color:var(--text-sec)">CSV format: <code>name,badge,post,shift,rate</code> — name is required.</p>
+    <p style="font-size:12px;color:var(--text-sec)">CSV format: <code>name,phone,badge,notes</code> — name required. Guards are added to your section.</p>
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
       <i class="ti ti-upload" style="font-size:28px;margin-bottom:6px;display:block"></i>
-      <div>Drop CSV here or <strong>click to browse</strong></div>
-      <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="fileSelected(event)">
+      <div>Drop CSV or <strong>tap to browse</strong></div>
+      <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="fileSelected(event)">
     </div>
     <div style="text-align:center;color:var(--text-sec);font-size:12px">— or paste CSV —</div>
-    <textarea id="csv-paste" placeholder="name,badge,post,shift,rate&#10;John Doe,1001,Gate A,06:00,18.00" rows="5" oninput="parsePaste()"></textarea>
+    <textarea id="csv-paste" placeholder="name,phone,badge&#10;John Doe,305-555-1234,1001" rows="4" oninput="parsePaste()"></textarea>
     <div id="bulk-preview"></div>
     <div id="bulk-status" style="font-size:13px;color:var(--text-sec)"></div>
     <button class="btn btn-success btn-full" id="bulk-import-btn" disabled onclick="bulkImport()"><i class="ti ti-upload"></i> Import guards</button>
@@ -554,14 +486,17 @@
   </div>
 </div>
 
-<!-- Broadcast -->
-<div class="modal-backdrop" id="modal-broadcast" onclick="backdropClose(event,'modal-broadcast')">
+<!-- Delete Guard confirm -->
+<div class="modal-backdrop" id="modal-confirm-delete" onclick="backdropClose(event,'modal-confirm-delete')">
   <div class="modal">
     <div class="modal-drag"></div>
-    <div class="modal-header"><span class="modal-title">Send Broadcast</span><button class="modal-close" onclick="closeModal('modal-broadcast')">×</button></div>
-    <p style="font-size:12px;color:var(--text-sec)">Broadcast messages appear on the Board tab for all supervisors.</p>
-    <div><label>Message *</label><textarea id="bc-text" placeholder="All units: …" rows="4"></textarea></div>
-    <button class="btn btn-primary btn-full" onclick="sendBroadcast()"><i class="ti ti-speakerphone"></i> Send Broadcast</button>
+    <div class="modal-header"><span class="modal-title">Remove Guard</span><button class="modal-close" onclick="closeModal('modal-confirm-delete')">×</button></div>
+    <p style="font-size:15px" id="confirm-delete-msg">Remove this guard?</p>
+    <p style="font-size:13px;color:var(--text-sec)">This also removes all their clock events and notes.</p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline btn-full" onclick="closeModal('modal-confirm-delete')">Cancel</button>
+      <button class="btn btn-danger btn-full" id="confirm-delete-btn" onclick="confirmDelete()"><i class="ti ti-trash"></i> Remove</button>
+    </div>
   </div>
 </div>
 
@@ -569,12 +504,13 @@
 // ─────────────────────────────────────────
 // State
 // ─────────────────────────────────────────
-const state = { guards: [], events: [], messages: [], notes: [] };
+const state = { guards: [], events: [], notes: [] };
 let currentSup = '';
+let currentSupId = '';
 let currentTab = 'board';
-let chatFilter = 'all';
 let pollInterval = null;
 let bulkRows = [];
+let pendingDeleteId = null;
 
 // ─────────────────────────────────────────
 // Utilities
@@ -583,37 +519,38 @@ const colors = ['#185FA5','#3B6D11','#993C1D','#854F0B','#993556','#534AB7'];
 function avatarColor(name) { let h=0; for (let c of name) h=(h*31+c.charCodeAt(0))%colors.length; return colors[h]; }
 function initials(name) { return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
 function avatar(name) { return `<div class="avatar" style="background:${avatarColor(name)}">${initials(name)}</div>`; }
+function avatarLarge(name) { return `<div class="avatar" style="background:${avatarColor(name)};width:60px;height:60px;font-size:20px">${initials(name)}</div>`; }
 
-function fmtTime(ts) {
-  const d = new Date(ts);
-  return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-}
-function fmtDate(ts) {
-  const d = new Date(ts);
-  return d.toLocaleDateString([], {month:'short',day:'numeric'}) + ' ' + fmtTime(ts);
-}
+function fmtTime(ts) { return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(ts) { const d=new Date(ts); return d.toLocaleDateString([],{month:'short',day:'numeric'})+' '+fmtTime(ts); }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function guardStatus(guardId) {
-  const evs = state.events.filter(e => e.guard_id === guardId).sort((a,b) => b.ts - a.ts);
+  const evs = state.events.filter(e=>e.guard_id===guardId).sort((a,b)=>b.ts-a.ts);
   return evs[0]?.action || 'none';
 }
+function statusPill(s) {
+  const map={in:'pill-in',out:'pill-out',flag:'pill-flag',noshow:'pill-noshow',none:'pill-none'};
+  const lbl={in:'Clocked In',out:'Clocked Out',flag:'Flagged',noshow:'No-show',none:'Not logged'};
+  return `<span class="pill ${map[s]||'pill-none'}">${lbl[s]||s}</span>`;
+}
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 
-function statusPill(status) {
-  const map = { in:'pill-in', out:'pill-out', flag:'pill-flag', noshow:'pill-noshow', none:'pill-none' };
-  const label = { in:'Clocked In', out:'Clocked Out', flag:'Flagged', noshow:'No-show', none:'Not logged' };
-  return `<span class="pill ${map[status]||'pill-none'}">${label[status]||status}</span>`;
+function fmtPhone(p) {
+  if (!p) return '';
+  return p.replace(/[\s\(\)\-\.]/g,'').replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3');
+}
+function phoneLink(phone) {
+  if (!phone) return '';
+  const clean = phone.replace(/[^\d\+]/g,'');
+  return `<a class="phone-link" href="tel:${clean}"><i class="ti ti-phone"></i>${escHtml(phone)}</a>`;
 }
 
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-
 // ─────────────────────────────────────────
-// API helpers
+// API
 // ─────────────────────────────────────────
-async function api(path, opts = {}) {
-  const r = await fetch('/api/' + path, {
-    headers: { 'Content-Type': 'application/json' },
-    ...opts
-  });
+async function api(path, opts={}) {
+  const r = await fetch('/api/'+path, { headers:{'Content-Type':'application/json'}, ...opts });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
@@ -621,98 +558,118 @@ async function api(path, opts = {}) {
 // ─────────────────────────────────────────
 // Login
 // ─────────────────────────────────────────
+function selectSup(btn) {
+  document.querySelectorAll('.sup-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  currentSupId = btn.dataset.id;
+  currentSup = btn.textContent.trim();
+}
+
 async function doLogin() {
-  const name = document.getElementById('sup-name').value.trim();
   const pin = document.getElementById('sup-pin').value.trim();
   const errEl = document.getElementById('login-error');
   errEl.style.display = 'none';
-  if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
-  if (!/^\d{4}$/.test(pin)) { errEl.textContent = 'PIN must be exactly 4 digits.'; errEl.style.display = 'block'; return; }
-
+  if (!currentSupId) { errEl.textContent='Please select your section.'; errEl.style.display='block'; return; }
+  if (!/^\d{4}$/.test(pin)) { errEl.textContent='PIN must be 4 digits.'; errEl.style.display='block'; return; }
   try {
     const { value: existingPin } = await api('meta?key=pin');
     if (!existingPin) {
-      // First supervisor — set the PIN
-      await api('meta', { method:'POST', body: JSON.stringify({ key:'pin', value: pin }) });
+      await api('meta',{method:'POST',body:JSON.stringify({key:'pin',value:pin})});
     } else if (existingPin !== pin) {
-      errEl.textContent = 'Incorrect PIN. Try again.';
-      errEl.style.display = 'block';
-      return;
+      errEl.textContent='Incorrect PIN. Try again.'; errEl.style.display='block'; return;
     }
-    currentSup = name;
-    sessionStorage.setItem('currentSup', name);
+    sessionStorage.setItem('currentSup', currentSup);
+    sessionStorage.setItem('currentSupId', currentSupId);
     showApp();
   } catch(e) {
-    errEl.textContent = 'Connection error: ' + e.message;
-    errEl.style.display = 'block';
+    errEl.textContent='Connection error: '+e.message; errEl.style.display='block';
   }
 }
 
-document.getElementById('sup-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('sup-name').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('sup-pin').focus(); });
+document.getElementById('sup-pin').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 
 // ─────────────────────────────────────────
-// App init
+// App
 // ─────────────────────────────────────────
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottom-nav').style.display = 'flex';
-  document.getElementById('top-bar-sup').textContent = 'Logged in as ' + currentSup;
+  document.getElementById('top-bar-sup').textContent = currentSup + ' · My section';
+  checkRosterLoaded();
   syncAll();
   pollInterval = setInterval(syncAll, 5000);
+}
+
+async function checkRosterLoaded() {
+  try {
+    const guards = await api('guards?supervisor_id='+currentSupId);
+    if (guards.length === 0) {
+      document.getElementById('roster-banner-wrap').innerHTML = `
+        <div class="roster-banner">
+          <div class="roster-banner-text">Roster not loaded yet.</div>
+          <button class="btn btn-primary btn-sm" onclick="loadRoster()"><i class="ti ti-download"></i> Load Roster</button>
+        </div>`;
+    } else {
+      document.getElementById('roster-banner-wrap').innerHTML = '';
+    }
+  } catch(e) {}
+}
+
+async function loadRoster() {
+  const btn = document.querySelector('#roster-banner-wrap .btn');
+  if (btn) { btn.disabled=true; btn.textContent='Loading…'; }
+  try {
+    const result = await api('seed', {method:'POST'});
+    document.getElementById('roster-banner-wrap').innerHTML = `<div class="roster-banner"><div class="roster-banner-text">✓ Roster loaded — ${result.guards_inserted} guards added.</div></div>`;
+    await syncAll();
+    setTimeout(()=>{ document.getElementById('roster-banner-wrap').innerHTML=''; }, 4000);
+  } catch(e) {
+    alert('Error loading roster: '+e.message);
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="ti ti-download"></i> Load Roster'; }
+  }
 }
 
 async function syncAll() {
   setSyncing(true);
   try {
-    const [guards, events, messages, notes] = await Promise.all([
-      api('guards'), api('events'), api('messages'), api('notes')
+    const q = 'supervisor_id='+currentSupId;
+    const [guards, events, notes] = await Promise.all([
+      api('guards?'+q), api('events?'+q), api('notes?'+q)
     ]);
     state.guards = guards;
     state.events = events;
-    state.messages = messages;
     state.notes = notes;
     renderAll();
     setSyncing(false);
-  } catch(e) {
-    setSyncing(false, true);
-  }
+  } catch(e) { setSyncing(false,true); }
 }
 
-function setSyncing(active, error = false) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  if (error) { dot.className = 'sync-dot error'; lbl.textContent = 'Offline'; }
-  else if (active) { dot.className = 'sync-dot syncing'; lbl.textContent = 'Syncing…'; }
-  else { dot.className = 'sync-dot'; lbl.textContent = 'Live'; }
+function setSyncing(active, error=false) {
+  const dot=document.getElementById('sync-dot'), lbl=document.getElementById('sync-label');
+  if (error) { dot.className='sync-dot error'; lbl.textContent='Offline'; }
+  else if (active) { dot.className='sync-dot syncing'; lbl.textContent='Syncing…'; }
+  else { dot.className='sync-dot'; lbl.textContent='Live'; }
 }
 
 function renderAll() {
-  renderBoard();
-  renderGuards();
-  renderClock();
-  renderChat();
-  renderNotes();
-  renderExport();
-  populateGuardSelects();
-  if (clockMode === 'multi') renderMultiSelect();
-  if (clockMode === 'rollcall') renderRollCall();
+  renderBoard(); renderGuards(); renderClock(); renderNotes(); renderExport(); populateGuardSelects();
+  if (clockMode==='multi') renderMultiSelect();
+  if (clockMode==='rollcall') renderRollCall();
 }
 
 // ─────────────────────────────────────────
 // Tab switching
 // ─────────────────────────────────────────
-const tabTitles = { board:'Board', guards:'Guards', clock:'Clock', chat:'Chat', notes:'Notes', export:'Export', map:'Map' };
+const tabTitles = {board:'Board',guards:'Guards',clock:'Clock',notes:'Notes',map:'Map',export:'Export'};
 function switchTab(tab) {
   currentTab = tab;
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + tab).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.nav-tab[data-tab="${tab}"]`).classList.add('active');
   document.getElementById('page-title').textContent = tabTitles[tab];
-  if (tab === 'chat') scrollChatBottom();
-  if (tab === 'export') renderExport();
+  if (tab==='export') renderExport();
 }
 
 // ─────────────────────────────────────────
@@ -720,58 +677,37 @@ function switchTab(tab) {
 // ─────────────────────────────────────────
 function renderBoard() {
   const guards = state.guards;
-  const total = guards.length;
-  let inn = 0, flag = 0, noshow = 0;
-  guards.forEach(g => {
-    const s = guardStatus(g.id);
-    if (s === 'in') inn++;
-    else if (s === 'flag') flag++;
-    else if (s === 'noshow') noshow++;
-  });
-  document.getElementById('stat-total').textContent = total;
+  let inn=0,flag=0,noshow=0;
+  guards.forEach(g=>{ const s=guardStatus(g.id); if(s==='in')inn++; else if(s==='flag')flag++; else if(s==='noshow')noshow++; });
+  document.getElementById('stat-total').textContent = guards.length;
   document.getElementById('stat-in').textContent = inn;
   document.getElementById('stat-flag').textContent = flag;
   document.getElementById('stat-noshow').textContent = noshow;
 
   const list = document.getElementById('board-guards');
-  if (!guards.length) { list.innerHTML = '<div style="padding:16px;color:var(--text-sec);text-align:center">No guards yet. Add guards in the Guards tab.</div>'; }
-  else {
-    list.innerHTML = guards.map(g => {
-      const s = guardStatus(g.id);
-      return `<div class="guard-row">
-        ${avatar(g.name)}
-        <div class="guard-info">
-          <div class="guard-name">${g.name}</div>
-          <div class="guard-meta">${g.post ? `<span class="post-badge">${g.post}</span> ` : ''}${g.shift || ''}</div>
-        </div>
-        ${statusPill(s)}
-      </div>`;
-    }).join('');
-  }
-
-  const broadcasts = state.messages.filter(m => m.type === 'broadcast').sort((a,b) => b.ts - a.ts).slice(0, 3);
-  const ann = document.getElementById('board-announcements');
-  if (!broadcasts.length) { ann.innerHTML = '<div style="color:var(--text-sec);font-size:13px">No broadcasts yet.</div>'; }
-  else {
-    ann.innerHTML = broadcasts.map(m => `
-      <div class="announcement">
-        <div class="announcement-meta">${m.sender} · ${fmtDate(m.ts)}</div>
-        <div>${escHtml(m.text)}</div>
-      </div>`).join('');
-  }
+  if (!guards.length) { list.innerHTML='<div style="padding:16px;color:var(--text-sec);text-align:center">No guards loaded yet. Go to Guards tab to load roster.</div>'; return; }
+  list.innerHTML = guards.map(g => {
+    const s = guardStatus(g.id);
+    return `<div class="board-status-row">
+      ${avatar(g.name)}
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(g.name)}</div>
+        <div style="font-size:12px;color:var(--text-sec)">${g.badge?'#'+escHtml(g.badge):''}${g.badge&&g.post?' · ':''}${g.post?escHtml(g.post):''}</div>
+      </div>
+      ${statusPill(s)}
+    </div>`;
+  }).join('');
 }
 
 // ─────────────────────────────────────────
 // Guards
 // ─────────────────────────────────────────
 function renderGuards() {
-  const q = (document.getElementById('guards-search')?.value || '').toLowerCase();
-  const filtered = state.guards.filter(g =>
-    g.name.toLowerCase().includes(q) || (g.post||'').toLowerCase().includes(q)
-  );
-  document.getElementById('guard-count-badge').textContent = `${state.guards.length} guards`;
+  const q = (document.getElementById('guards-search')?.value||'').toLowerCase();
+  const filtered = state.guards.filter(g=>g.name.toLowerCase().includes(q)||(g.badge||'').includes(q)||(g.phone||'').includes(q));
+  document.getElementById('guard-count-badge').textContent = state.guards.length+' guards';
   const list = document.getElementById('guards-list');
-  if (!filtered.length) { list.innerHTML = '<div style="padding:16px;color:var(--text-sec)">No guards match search.</div>'; return; }
+  if (!filtered.length) { list.innerHTML='<div style="padding:16px;color:var(--text-sec)">No guards match.</div>'; return; }
   list.innerHTML = filtered.map(g => {
     const s = guardStatus(g.id);
     return `<div class="guard-row">
@@ -779,13 +715,17 @@ function renderGuards() {
       <div class="guard-info">
         <div class="guard-name">${escHtml(g.name)}</div>
         <div class="guard-meta">
-          ${g.post ? `<span class="post-badge">${escHtml(g.post)}</span> ` : ''}
-          ${g.badge ? `#${escHtml(g.badge)} ` : ''}
-          ${g.shift ? `· ${escHtml(g.shift)} ` : ''}
-          ${g.rate ? `· $${parseFloat(g.rate).toFixed(2)}/hr` : ''}
+          ${g.badge?`<span class="post-badge">#${escHtml(g.badge)}</span>`:''}
+          ${statusPill(s)}
+        </div>
+        <div class="guard-meta" style="margin-top:4px">
+          ${g.phone ? phoneLink(g.phone) : ''}
+          ${g.notes?`<span class="guard-note"><i class="ti ti-alert-triangle" style="font-size:12px"></i> ${escHtml(g.notes)}</span>`:''}
         </div>
       </div>
-      ${statusPill(s)}
+      <div class="guard-actions">
+        <button class="btn btn-outline btn-icon" onclick="promptDelete('${g.id}','${escHtml(g.name)}')" style="border-color:#fde8e8;color:var(--red)"><i class="ti ti-trash"></i></button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -793,17 +733,24 @@ function renderGuards() {
 async function addGuard() {
   const name = document.getElementById('ag-name').value.trim();
   if (!name) { alert('Name is required.'); return; }
-  const guard = {
-    id: uid(),
-    name,
-    badge: document.getElementById('ag-badge').value.trim(),
-    post: document.getElementById('ag-post').value.trim(),
-    shift: document.getElementById('ag-shift').value.trim(),
-    rate: parseFloat(document.getElementById('ag-rate').value) || null
-  };
-  await api('guards', { method:'POST', body: JSON.stringify(guard) });
+  const guard = { id:uid(), name, phone:document.getElementById('ag-phone').value.trim(), badge:document.getElementById('ag-badge').value.trim(), post:document.getElementById('ag-post').value.trim(), notes:document.getElementById('ag-notes').value.trim(), rate:parseFloat(document.getElementById('ag-rate').value)||null, supervisor_id:currentSupId };
+  await api('guards',{method:'POST',body:JSON.stringify(guard)});
   closeModal('modal-add-guard');
-  ['ag-name','ag-badge','ag-post','ag-shift','ag-rate'].forEach(id => document.getElementById(id).value = '');
+  ['ag-name','ag-phone','ag-badge','ag-post','ag-notes','ag-rate'].forEach(id=>document.getElementById(id).value='');
+  await syncAll();
+}
+
+function promptDelete(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('confirm-delete-msg').textContent = `Remove ${name} from your roster?`;
+  openModal('modal-confirm-delete');
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  await api('guards?id='+pendingDeleteId, {method:'DELETE'});
+  closeModal('modal-confirm-delete');
+  pendingDeleteId = null;
   await syncAll();
 }
 
@@ -812,471 +759,297 @@ async function addGuard() {
 // ─────────────────────────────────────────
 function parseCSV(raw) {
   const lines = raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  const rows = [];
+  const rows=[];
   for (const line of lines) {
     if (!line.trim()) continue;
-    const cols = line.split(',').map(c => c.trim());
-    if (!cols[0] || cols[0].toLowerCase() === 'name') continue; // skip header
-    rows.push({ name: cols[0], badge: cols[1]||'', post: cols[2]||'', shift: cols[3]||'', rate: parseFloat(cols[4])||null });
+    const cols = line.split(',').map(c=>c.trim());
+    if (!cols[0]||cols[0].toLowerCase()==='name') continue;
+    rows.push({name:cols[0],phone:cols[1]||'',badge:cols[2]||'',notes:cols[3]||''});
   }
   return rows;
 }
-
 function showBulkPreview(rows) {
   bulkRows = rows;
-  const existingNames = new Set(state.guards.map(g => g.name.toLowerCase()));
-  const newRows = rows.filter(r => !existingNames.has(r.name.toLowerCase()));
-  const skipped = rows.length - newRows.length;
-  document.getElementById('bulk-status').textContent = `${newRows.length} guards detected — ready to import. ${skipped ? `(${skipped} duplicates will be skipped)` : ''}`;
-  document.getElementById('bulk-import-btn').disabled = newRows.length === 0;
-  const preview = rows.slice(0,10);
-  document.getElementById('bulk-preview').innerHTML = `<table class="preview-table"><thead><tr><th>Name</th><th>Badge</th><th>Post</th><th>Shift</th><th>Rate</th></tr></thead><tbody>${
-    preview.map(r => `<tr><td>${escHtml(r.name)}</td><td>${escHtml(r.badge)}</td><td>${escHtml(r.post)}</td><td>${escHtml(r.shift)}</td><td>${r.rate||''}</td></tr>`).join('')
-  }</tbody></table>`;
+  const existingNames = new Set(state.guards.map(g=>g.name.toLowerCase()));
+  const newRows = rows.filter(r=>!existingNames.has(r.name.toLowerCase()));
+  document.getElementById('bulk-status').textContent = `${newRows.length} guards detected — ready to import. ${rows.length-newRows.length ? `(${rows.length-newRows.length} duplicates skipped)` : ''}`;
+  document.getElementById('bulk-import-btn').disabled = newRows.length===0;
+  document.getElementById('bulk-preview').innerHTML = `<table class="preview-table"><thead><tr><th>Name</th><th>Phone</th><th>Badge</th></tr></thead><tbody>${rows.slice(0,8).map(r=>`<tr><td>${escHtml(r.name)}</td><td>${escHtml(r.phone)}</td><td>${escHtml(r.badge)}</td></tr>`).join('')}</tbody></table>`;
 }
-
-function fileSelected(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => { showBulkPreview(parseCSV(ev.target.result)); };
-  reader.readAsText(file);
-}
+function fileSelected(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>showBulkPreview(parseCSV(ev.target.result)); r.readAsText(f); }
 function dragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
 function dragLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
-function dropFile(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => { showBulkPreview(parseCSV(ev.target.result)); };
-  reader.readAsText(file);
-}
+function dropFile(e) { e.preventDefault(); document.getElementById('drop-zone').classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>showBulkPreview(parseCSV(ev.target.result)); r.readAsText(f); }
 function parsePaste() { showBulkPreview(parseCSV(document.getElementById('csv-paste').value)); }
-
 async function bulkImport() {
-  const existingNames = new Set(state.guards.map(g => g.name.toLowerCase()));
-  const toInsert = bulkRows.filter(r => !existingNames.has(r.name.toLowerCase())).map(r => ({ ...r, id: uid() }));
-  const skipped = bulkRows.length - toInsert.length;
+  const existingNames = new Set(state.guards.map(g=>g.name.toLowerCase()));
+  const toInsert = bulkRows.filter(r=>!existingNames.has(r.name.toLowerCase())).map(r=>({...r,id:uid(),supervisor_id:currentSupId}));
   if (!toInsert.length) { alert('No new guards to import.'); return; }
-  await api('guards', { method:'POST', body: JSON.stringify(toInsert) });
+  await api('guards',{method:'POST',body:JSON.stringify(toInsert)});
   closeModal('modal-bulk');
-  bulkRows = [];
-  document.getElementById('csv-paste').value = '';
-  document.getElementById('bulk-preview').innerHTML = '';
-  document.getElementById('bulk-status').textContent = '';
-  document.getElementById('bulk-import-btn').disabled = true;
+  bulkRows=[];
+  document.getElementById('csv-paste').value='';
+  document.getElementById('bulk-preview').innerHTML='';
+  document.getElementById('bulk-status').textContent='';
+  document.getElementById('bulk-import-btn').disabled=true;
   await syncAll();
-  alert(`Imported ${toInsert.length} guards. Skipped ${skipped} duplicates.`);
+  alert(`Imported ${toInsert.length} guards.`);
 }
 
 // ─────────────────────────────────────────
-// Clock mode switching
+// Clock mode
 // ─────────────────────────────────────────
-let clockMode = 'single';
+let clockMode='single';
 function setClockMode(mode) {
-  clockMode = mode;
-  ['single','multi','rollcall'].forEach(m => {
-    document.getElementById('clock-mode-' + m).style.display = m === mode ? 'block' : 'none';
-    document.getElementById('mode-tab-' + m).classList.toggle('active', m === mode);
+  clockMode=mode;
+  ['single','multi','rollcall'].forEach(m=>{
+    document.getElementById('clock-mode-'+m).style.display=m===mode?'block':'none';
+    document.getElementById('mode-tab-'+m).classList.toggle('active',m===mode);
   });
-  if (mode === 'multi') renderMultiSelect();
-  if (mode === 'rollcall') initRollCall();
+  if(mode==='multi') renderMultiSelect();
+  if(mode==='rollcall') initRollCall();
 }
 
 // ─────────────────────────────────────────
-// Multi-select
-// ─────────────────────────────────────────
-let multiSelected = new Set();
-
-function renderMultiSelect() {
-  const q = (document.getElementById('multi-search')?.value || '').toLowerCase();
-  const filtered = state.guards.filter(g =>
-    g.name.toLowerCase().includes(q) || (g.post||'').toLowerCase().includes(q)
-  ).sort((a,b) => a.name.localeCompare(b.name));
-
-  const list = document.getElementById('multi-guard-list');
-  if (!filtered.length) { list.innerHTML = '<div style="padding:10px;color:var(--text-sec)">No guards found.</div>'; return; }
-
-  list.innerHTML = filtered.map(g => {
-    const checked = multiSelected.has(g.id);
-    const s = guardStatus(g.id);
-    return `<div class="guard-check-row ${checked ? 'checked' : ''}" onclick="toggleMultiSelect('${g.id}')">
-      <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation();toggleMultiSelect('${g.id}')">
-      ${avatar(g.name)}
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:500">${escHtml(g.name)}</div>
-        <div style="font-size:12px;color:var(--text-sec)">${g.post ? escHtml(g.post) + ' · ' : ''}${statusPill(s)}</div>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('multi-selected-count').textContent = multiSelected.size;
-}
-
-function toggleMultiSelect(id) {
-  if (multiSelected.has(id)) multiSelected.delete(id);
-  else multiSelected.add(id);
-  renderMultiSelect();
-}
-
-function multiSelectAll() {
-  state.guards.forEach(g => multiSelected.add(g.id));
-  renderMultiSelect();
-}
-function multiSelectNone() {
-  multiSelected.clear();
-  renderMultiSelect();
-}
-function multiSelectNotIn() {
-  multiSelected.clear();
-  state.guards.forEach(g => { if (guardStatus(g.id) !== 'in') multiSelected.add(g.id); });
-  renderMultiSelect();
-}
-
-async function submitMulti() {
-  if (!multiSelected.size) { alert('No guards selected.'); return; }
-  const action = document.getElementById('multi-action').value;
-  const note = document.getElementById('multi-note').value.trim();
-  const ts = Date.now();
-  const btn = document.querySelector('#clock-mode-multi .btn-success');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  try {
-    await Promise.all([...multiSelected].map(guardId =>
-      api('events', { method:'POST', body: JSON.stringify({ guardId, action, note, by: currentSup, ts }) })
-    ));
-    multiSelected.clear();
-    document.getElementById('multi-note').value = '';
-    await syncAll();
-    renderMultiSelect();
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-clock-check"></i> Submit for selected';
-  }
-}
-
-// ─────────────────────────────────────────
-// Roll Call
-// ─────────────────────────────────────────
-let rcQueue = [];      // guards not yet acted on
-let rcDone = [];       // { guard, action } logged this session
-let rcIndex = 0;
-
-function initRollCall() {
-  // Only reset if queue is empty (fresh start)
-  if (rcQueue.length === 0 && rcDone.length === 0) resetRollCall();
-  else renderRollCall();
-}
-
-function resetRollCall() {
-  // Build queue: all guards, already-logged ones go to done with their current status shown
-  const sorted = [...state.guards].sort((a,b) => a.name.localeCompare(b.name));
-  rcQueue = sorted.filter(g => guardStatus(g.id) === 'none');
-  rcDone = sorted
-    .filter(g => guardStatus(g.id) !== 'none')
-    .map(g => ({ guard: g, action: guardStatus(g.id), preExisting: true }));
-  rcIndex = 0;
-  renderRollCall();
-}
-
-function renderRollCall() {
-  const total = rcQueue.length + rcDone.filter(d => !d.preExisting).length;
-  const logged = rcDone.filter(d => !d.preExisting).length;
-  const grandTotal = state.guards.length;
-  const grandLogged = rcDone.length;
-
-  // Progress bar counts all guards (pre-existing + logged this session)
-  const pct = grandTotal ? Math.round((grandLogged / grandTotal) * 100) : 0;
-  document.getElementById('rc-bar').style.width = pct + '%';
-  document.getElementById('rc-count').textContent = `${grandLogged} / ${grandTotal}`;
-
-  const card = document.getElementById('rc-current-card');
-  if (rcQueue.length === 0) {
-    card.innerHTML = `<div class="rc-card">
-      <i class="ti ti-circle-check" style="font-size:48px;color:var(--green)"></i>
-      <div class="rc-name">Roll Call Complete!</div>
-      <div class="rc-post">All ${grandTotal} guards have been logged.</div>
-    </div>`;
-  } else {
-    const g = rcQueue[rcIndex] || rcQueue[0];
-    if (!g) { card.innerHTML = ''; return; }
-    const s = guardStatus(g.id);
-    card.innerHTML = `<div class="rc-card">
-      <div style="display:flex;justify-content:center">${avatarLarge(g.name)}</div>
-      <div class="rc-name">${escHtml(g.name)}</div>
-      <div class="rc-post">${g.post ? escHtml(g.post) : 'No post assigned'}${g.shift ? ' · ' + escHtml(g.shift) : ''}</div>
-      <div class="rc-actions">
-        <button class="btn btn-success" onclick="logRollCall('${g.id}','in')"><i class="ti ti-clock-check"></i> Clock IN</button>
-        <button class="btn btn-danger" onclick="logRollCall('${g.id}','noshow')"><i class="ti ti-user-off"></i> No-show</button>
-        <button class="btn btn-outline" style="border-color:var(--amber);color:var(--amber)" onclick="logRollCall('${g.id}','flag')"><i class="ti ti-flag"></i> Flag</button>
-        <button class="btn btn-outline" onclick="logRollCall('${g.id}','out')"><i class="ti ti-clock-pause"></i> Clock OUT</button>
-      </div>
-      <button class="rc-skip" onclick="skipRollCall('${g.id}')">Skip for now →</button>
-      <div style="font-size:12px;color:var(--text-sec);margin-top:6px">${rcQueue.length} remaining</div>
-    </div>`;
-  }
-
-  // Done list
-  const doneSection = document.getElementById('rc-done-section');
-  const doneList = document.getElementById('rc-done-list');
-  const sessionDone = rcDone.filter(d => !d.preExisting);
-  if (sessionDone.length) {
-    doneSection.style.display = 'block';
-    const actionLabel = { in:'Clocked In', out:'Clocked Out', flag:'Flagged', noshow:'No-show' };
-    doneList.innerHTML = sessionDone.map(d => `
-      <div class="rc-done-item">
-        ${avatar(d.guard.name)}
-        <span style="flex:1">${escHtml(d.guard.name)}</span>
-        ${statusPill(d.action)}
-      </div>`).join('');
-  } else {
-    doneSection.style.display = 'none';
-  }
-}
-
-async function logRollCall(guardId, action) {
-  const g = rcQueue.find(g => g.id === guardId);
-  if (!g) return;
-  await api('events', { method:'POST', body: JSON.stringify({ guardId, action, note: '', by: currentSup, ts: Date.now() }) });
-  rcQueue = rcQueue.filter(g => g.id !== guardId);
-  rcDone.unshift({ guard: g, action, preExisting: false });
-  await syncAll();
-  renderRollCall();
-}
-
-function skipRollCall(guardId) {
-  // Move to end of queue
-  const idx = rcQueue.findIndex(g => g.id === guardId);
-  if (idx === -1) return;
-  const [g] = rcQueue.splice(idx, 1);
-  rcQueue.push(g);
-  renderRollCall();
-}
-
-function avatarLarge(name) {
-  return `<div class="avatar" style="background:${avatarColor(name)};width:60px;height:60px;font-size:20px">${initials(name)}</div>`;
-}
-
-// ─────────────────────────────────────────
-// Clock
+// Clock — single
 // ─────────────────────────────────────────
 function renderClock() {
-  const recent = [...state.events].sort((a,b) => b.ts - a.ts).slice(0, 20);
-  const guardMap = Object.fromEntries(state.guards.map(g => [g.id, g]));
-  const container = document.getElementById('clock-events');
-  if (!recent.length) { container.innerHTML = '<div style="padding:16px;color:var(--text-sec)">No events yet.</div>'; return; }
-  const actionLabel = { in:'Clocked In', out:'Clocked Out', flag:'Flagged', noshow:'No-show' };
-  container.innerHTML = recent.map(ev => {
-    const g = guardMap[ev.guard_id];
+  const recent=[...state.events].sort((a,b)=>b.ts-a.ts).slice(0,20);
+  const guardMap=Object.fromEntries(state.guards.map(g=>[g.id,g]));
+  const container=document.getElementById('clock-events');
+  if(!recent.length){container.innerHTML='<div style="padding:16px;color:var(--text-sec)">No events yet.</div>';return;}
+  const lbl={in:'Clocked In',out:'Clocked Out',flag:'Flagged',noshow:'No-show'};
+  container.innerHTML=recent.map(ev=>{
+    const g=guardMap[ev.guard_id]||{};
     return `<div class="event-row">
-      ${g ? avatar(g.name) : '<div class="avatar" style="background:#ccc">?</div>'}
+      ${g.name?avatar(g.name):'<div class="avatar" style="background:#ccc">?</div>'}
       <div style="flex:1;min-width:0">
-        <div><strong>${g ? escHtml(g.name) : 'Unknown'}</strong> — <span class="event-action ${ev.action}">${actionLabel[ev.action]||ev.action}</span></div>
-        <div class="event-meta">${fmtDate(ev.ts)} · by ${escHtml(ev.by_sup)}${ev.note ? ` · ${escHtml(ev.note)}` : ''}</div>
+        <div><strong>${escHtml(g.name||'Unknown')}</strong> — <span class="event-action ${ev.action}">${lbl[ev.action]||ev.action}</span></div>
+        <div class="event-meta">${fmtDate(ev.ts)} · by ${escHtml(ev.by_sup)}${ev.note?' · '+escHtml(ev.note):''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
 async function submitClock() {
-  const guardId = document.getElementById('clock-guard').value;
-  const action = document.getElementById('clock-action').value;
-  const note = document.getElementById('clock-note').value.trim();
-  if (!guardId) { alert('Please select a guard.'); return; }
-  await api('events', { method:'POST', body: JSON.stringify({ guardId, action, note, by: currentSup, ts: Date.now() }) });
-  document.getElementById('clock-note').value = '';
+  const guardId=document.getElementById('clock-guard').value;
+  const action=document.getElementById('clock-action').value;
+  const note=document.getElementById('clock-note').value.trim();
+  if(!guardId){alert('Select a guard.');return;}
+  await api('events',{method:'POST',body:JSON.stringify({guardId,action,note,by:currentSup,ts:Date.now()})});
+  document.getElementById('clock-note').value='';
   await syncAll();
   switchTab('board');
 }
 
 // ─────────────────────────────────────────
-// Chat
+// Clock — multi-select
 // ─────────────────────────────────────────
-function setChatFilter(f) {
-  chatFilter = f;
-  document.getElementById('chat-filter-all').className = 'btn btn-sm ' + (f==='all' ? 'btn-primary' : 'btn-outline');
-  document.getElementById('chat-filter-bc').className = 'btn btn-sm ' + (f==='broadcast' ? 'btn-primary' : 'btn-outline');
-  renderChat();
-}
-
-function renderChat() {
-  let msgs = state.messages;
-  if (chatFilter === 'broadcast') msgs = msgs.filter(m => m.type === 'broadcast');
-  const container = document.getElementById('chat-messages');
-  if (!msgs.length) { container.innerHTML = '<div style="color:var(--text-sec);text-align:center;padding:16px">No messages yet.</div>'; return; }
-  const prev = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
-  container.innerHTML = msgs.map(m => {
-    const isOwn = m.sender === currentSup;
-    const isBc = m.type === 'broadcast';
-    return `<div class="bubble-wrap ${isOwn ? 'own' : 'other'}">
-      <div class="bubble-meta">${escHtml(m.sender)} · ${fmtTime(m.ts)}${isBc ? ' 📢' : ''}</div>
-      <div class="bubble ${isOwn ? 'own' : 'other'} ${isBc ? 'broadcast' : ''}">${escHtml(m.text)}</div>
+let multiSelected=new Set();
+function renderMultiSelect() {
+  const q=(document.getElementById('multi-search')?.value||'').toLowerCase();
+  const filtered=state.guards.filter(g=>g.name.toLowerCase().includes(q)||(g.badge||'').includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  const list=document.getElementById('multi-guard-list');
+  if(!filtered.length){list.innerHTML='<div style="padding:10px;color:var(--text-sec)">No guards found.</div>';return;}
+  list.innerHTML=filtered.map(g=>{
+    const checked=multiSelected.has(g.id);
+    const s=guardStatus(g.id);
+    return `<div class="guard-check-row ${checked?'checked':''}" onclick="toggleMultiSelect('${g.id}')">
+      <input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleMultiSelect('${g.id}')">
+      ${avatar(g.name)}
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600">${escHtml(g.name)}</div>
+        <div style="font-size:12px;color:var(--text-sec);display:flex;gap:6px;align-items:center">${g.phone?phoneLink(g.phone):''}${statusPill(s)}</div>
+      </div>
     </div>`;
   }).join('');
-  if (prev) scrollChatBottom();
+  document.getElementById('multi-selected-count').textContent=multiSelected.size;
+}
+function toggleMultiSelect(id){multiSelected.has(id)?multiSelected.delete(id):multiSelected.add(id);renderMultiSelect();}
+function multiSelectAll(){state.guards.forEach(g=>multiSelected.add(g.id));renderMultiSelect();}
+function multiSelectNone(){multiSelected.clear();renderMultiSelect();}
+function multiSelectNotIn(){multiSelected.clear();state.guards.forEach(g=>{if(guardStatus(g.id)!=='in')multiSelected.add(g.id);});renderMultiSelect();}
+async function submitMulti(){
+  if(!multiSelected.size){alert('No guards selected.');return;}
+  const action=document.getElementById('multi-action').value;
+  const note=document.getElementById('multi-note').value.trim();
+  const ts=Date.now();
+  const btn=document.querySelector('#clock-mode-multi .btn-success');
+  btn.disabled=true; btn.textContent='Submitting…';
+  try{
+    await Promise.all([...multiSelected].map(guardId=>api('events',{method:'POST',body:JSON.stringify({guardId,action,note,by:currentSup,ts})})));
+    multiSelected.clear(); document.getElementById('multi-note').value='';
+    await syncAll(); renderMultiSelect();
+  } finally { btn.disabled=false; btn.innerHTML='<i class="ti ti-clock-check"></i> Submit for selected'; }
 }
 
-function scrollChatBottom() { const c = document.getElementById('chat-messages'); c.scrollTop = c.scrollHeight; }
-
-function chatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-
-async function sendMessage() {
-  const text = document.getElementById('chat-input').value.trim();
-  if (!text) return;
-  document.getElementById('chat-input').value = '';
-  await api('messages', { method:'POST', body: JSON.stringify({ type:'message', sender: currentSup, text, ts: Date.now() }) });
-  await syncAll();
-  scrollChatBottom();
+// ─────────────────────────────────────────
+// Clock — roll call
+// ─────────────────────────────────────────
+let rcQueue=[], rcDone=[];
+function initRollCall(){if(rcQueue.length===0&&rcDone.length===0)resetRollCall();else renderRollCall();}
+function resetRollCall(){
+  const sorted=[...state.guards].sort((a,b)=>a.name.localeCompare(b.name));
+  rcQueue=sorted.filter(g=>guardStatus(g.id)==='none');
+  rcDone=sorted.filter(g=>guardStatus(g.id)!=='none').map(g=>({guard:g,action:guardStatus(g.id),preExisting:true}));
+  renderRollCall();
 }
-
-async function sendBroadcast() {
-  const text = document.getElementById('bc-text').value.trim();
-  if (!text) { alert('Enter a message.'); return; }
-  await api('messages', { method:'POST', body: JSON.stringify({ type:'broadcast', sender: currentSup, text, ts: Date.now() }) });
-  closeModal('modal-broadcast');
-  document.getElementById('bc-text').value = '';
-  await syncAll();
+function renderRollCall(){
+  const grandTotal=state.guards.length;
+  const grandLogged=rcDone.length;
+  const pct=grandTotal?Math.round((grandLogged/grandTotal)*100):0;
+  document.getElementById('rc-bar').style.width=pct+'%';
+  document.getElementById('rc-count').textContent=`${grandLogged} / ${grandTotal}`;
+  const card=document.getElementById('rc-current-card');
+  if(rcQueue.length===0){
+    card.innerHTML=`<div class="rc-card"><i class="ti ti-circle-check" style="font-size:56px;color:var(--green-lt)"></i><div class="rc-name">Roll Call Complete!</div><div class="rc-post">All ${grandTotal} guards accounted for.</div></div>`;
+  } else {
+    const g=rcQueue[0];
+    card.innerHTML=`<div class="rc-card">
+      <div style="display:flex;justify-content:center">${avatarLarge(g.name)}</div>
+      <div class="rc-name">${escHtml(g.name)}</div>
+      <div class="rc-post">${g.badge?'Badge #'+escHtml(g.badge):''}${g.badge&&g.post?' · ':''}${g.post?escHtml(g.post):''}</div>
+      ${g.phone?`<a class="rc-phone" href="tel:${g.phone.replace(/[^\d\+]/g,'')}"><i class="ti ti-phone"></i>${escHtml(g.phone)}</a>`:''}
+      ${g.notes?`<div style="font-size:13px;color:var(--amber);margin-bottom:10px"><i class="ti ti-alert-triangle"></i> ${escHtml(g.notes)}</div>`:''}
+      <div class="rc-actions">
+        <button class="btn btn-success" onclick="logRollCall('${g.id}','in')"><i class="ti ti-clock-check"></i>Clock IN</button>
+        <button class="btn btn-danger"  onclick="logRollCall('${g.id}','noshow')"><i class="ti ti-user-off"></i>No-show</button>
+        <button class="btn btn-amber"   onclick="logRollCall('${g.id}','flag')"><i class="ti ti-flag"></i>Flag</button>
+        <button class="btn btn-outline" onclick="logRollCall('${g.id}','out')"><i class="ti ti-clock-pause"></i>Clock OUT</button>
+      </div>
+      <button class="rc-skip" onclick="skipRollCall('${g.id}')">Skip for now → (${rcQueue.length} remaining)</button>
+    </div>`;
+  }
+  const sessionDone=rcDone.filter(d=>!d.preExisting);
+  const doneSection=document.getElementById('rc-done-section');
+  const doneList=document.getElementById('rc-done-list');
+  if(sessionDone.length){
+    doneSection.style.display='block';
+    doneList.innerHTML=sessionDone.map(d=>`<div class="rc-done-item">${avatar(d.guard.name)}<span style="flex:1">${escHtml(d.guard.name)}</span>${statusPill(d.action)}</div>`).join('');
+  } else { doneSection.style.display='none'; }
 }
+async function logRollCall(guardId,action){
+  const g=rcQueue.find(g=>g.id===guardId); if(!g)return;
+  await api('events',{method:'POST',body:JSON.stringify({guardId,action,note:'',by:currentSup,ts:Date.now()})});
+  rcQueue=rcQueue.filter(g=>g.id!==guardId);
+  rcDone.unshift({guard:g,action,preExisting:false});
+  await syncAll(); renderRollCall();
+}
+function skipRollCall(guardId){const idx=rcQueue.findIndex(g=>g.id===guardId);if(idx===-1)return;const[g]=rcQueue.splice(idx,1);rcQueue.push(g);renderRollCall();}
 
 // ─────────────────────────────────────────
 // Notes
 // ─────────────────────────────────────────
 function renderNotes() {
-  const q = (document.getElementById('notes-search')?.value || '').toLowerCase();
-  const filtered = state.notes.filter(n =>
-    (n.guard_name||'').toLowerCase().includes(q) || (n.text||'').toLowerCase().includes(q)
-  );
-  const list = document.getElementById('notes-list');
-  if (!filtered.length) { list.innerHTML = '<div style="color:var(--text-sec);padding:8px">No notes yet.</div>'; return; }
-  list.innerHTML = filtered.map(n => `
-    <div class="note-card">
-      <div class="note-header">
-        <span class="note-guard">${escHtml(n.guard_name || 'General')}</span>
-        <span class="note-by">${escHtml(n.by_sup)} · ${fmtDate(n.ts)}</span>
-      </div>
-      <div class="note-text">${escHtml(n.text)}</div>
-    </div>`).join('');
+  const q=(document.getElementById('notes-search')?.value||'').toLowerCase();
+  const filtered=state.notes.filter(n=>(n.guard_name||'').toLowerCase().includes(q)||(n.text||'').toLowerCase().includes(q));
+  const list=document.getElementById('notes-list');
+  if(!filtered.length){list.innerHTML='<div style="color:var(--text-sec);padding:8px">No notes yet.</div>';return;}
+  list.innerHTML=filtered.map(n=>`<div class="note-card">
+    <div class="note-header">
+      <span class="note-guard">${escHtml(n.guard_name||'General')}</span>
+      <span class="note-by">${escHtml(n.by_sup)}<br>${fmtDate(n.ts)}</span>
+    </div>
+    <div class="note-text">${escHtml(n.text)}</div>
+  </div>`).join('');
 }
-
-async function addNote() {
-  const text = document.getElementById('note-text').value.trim();
-  if (!text) { alert('Note text is required.'); return; }
-  const guardId = document.getElementById('note-guard').value;
-  const guard = state.guards.find(g => g.id === guardId);
-  await api('notes', { method:'POST', body: JSON.stringify({ guardId: guardId || null, guardName: guard?.name || 'General', text, by: currentSup, ts: Date.now() }) });
-  closeModal('modal-add-note');
-  document.getElementById('note-text').value = '';
+async function addNote(){
+  const text=document.getElementById('note-text').value.trim();
+  if(!text){alert('Note text is required.');return;}
+  const guardId=document.getElementById('note-guard').value;
+  const guard=state.guards.find(g=>g.id===guardId);
+  await api('notes',{method:'POST',body:JSON.stringify({guardId:guardId||null,guardName:guard?.name||'General',text,by:currentSup,ts:Date.now()})});
+  closeModal('modal-add-note'); document.getElementById('note-text').value='';
   await syncAll();
 }
 
 // ─────────────────────────────────────────
 // Export / Pay
 // ─────────────────────────────────────────
-function calcHours(guardId) {
-  const evs = state.events.filter(e => e.guard_id === guardId).sort((a,b) => a.ts - b.ts);
-  // Check if no-show
-  const latest = evs[evs.length - 1];
-  if (latest?.action === 'noshow') return 0;
-
-  let ms = 0;
-  let clockInTs = null;
-  for (const ev of evs) {
-    if (ev.action === 'in') { clockInTs = ev.ts; }
-    else if (ev.action === 'out' && clockInTs !== null) { ms += ev.ts - clockInTs; clockInTs = null; }
+function calcHours(guardId){
+  const evs=state.events.filter(e=>e.guard_id===guardId).sort((a,b)=>a.ts-b.ts);
+  const latest=evs[evs.length-1];
+  if(latest?.action==='noshow')return 0;
+  let ms=0,clockInTs=null;
+  for(const ev of evs){
+    if(ev.action==='in'){clockInTs=ev.ts;}
+    else if(ev.action==='out'&&clockInTs!==null){ms+=ev.ts-clockInTs;clockInTs=null;}
   }
-  if (clockInTs !== null) ms += Date.now() - clockInTs; // still clocked in
-  return Math.round(ms / 36000) / 100; // hours to 2dp
+  if(clockInTs!==null)ms+=Date.now()-clockInTs;
+  return Math.round(ms/36000)/100;
 }
-
-function renderExport() {
-  const defaultRate = parseFloat(document.getElementById('export-rate')?.value) || 18;
-  const tbody = document.getElementById('pay-body');
-  let totalPay = 0;
-  tbody.innerHTML = state.guards.map(g => {
-    const hours = calcHours(g.id);
-    const rate = parseFloat(g.rate) || defaultRate;
-    const pay = hours * rate;
-    totalPay += pay;
-    const status = guardStatus(g.id);
-    return `<tr>
-      <td>${escHtml(g.name)}</td>
-      <td>${escHtml(g.post||'')}</td>
-      <td>${hours.toFixed(2)}</td>
-      <td>$${rate.toFixed(2)}</td>
-      <td>$${pay.toFixed(2)}</td>
-    </tr>`;
+function renderExport(){
+  const defaultRate=parseFloat(document.getElementById('export-rate')?.value)||18;
+  const tbody=document.getElementById('pay-body');
+  let totalPay=0;
+  tbody.innerHTML=state.guards.map(g=>{
+    const hours=calcHours(g.id),rate=parseFloat(g.rate)||defaultRate,pay=hours*rate;
+    totalPay+=pay;
+    return `<tr><td>${escHtml(g.name)}</td><td>${escHtml(g.badge||'')}</td><td>${hours.toFixed(2)}</td><td>$${rate.toFixed(2)}</td><td>$${pay.toFixed(2)}</td></tr>`;
   }).join('');
-  document.getElementById('pay-total').textContent = '$' + totalPay.toFixed(2);
-
-  // Summary cards
-  document.getElementById('summary-grid').innerHTML = [
-    ['Guards Rostered', state.guards.length],
-    ['Clock Events', state.events.length],
-    ['No-shows', state.events.filter(e => e.action === 'noshow').length],
-    ['Flagged', state.events.filter(e => e.action === 'flag').length],
-    ['Incident Notes', state.notes.length],
-    ['Chat Messages', state.messages.length],
-  ].map(([label, num]) => `<div class="summary-card"><div class="summary-num">${num}</div><div class="summary-label">${label}</div></div>`).join('');
+  document.getElementById('pay-total').textContent='$'+totalPay.toFixed(2);
+  document.getElementById('summary-grid').innerHTML=[
+    ['Guards',state.guards.length],['Clock Events',state.events.length],
+    ['No-shows',state.events.filter(e=>e.action==='noshow').length],
+    ['Flagged',state.events.filter(e=>e.action==='flag').length],
+    ['Notes',state.notes.length],['Clocked In',state.guards.filter(g=>guardStatus(g.id)==='in').length],
+  ].map(([l,n])=>`<div class="summary-card"><div class="summary-num">${n}</div><div class="summary-label">${l}</div></div>`).join('');
 }
-
-function downloadCSV(rows, filename) {
-  const csv = rows.map(r => r.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = filename;
-  a.click();
+function downloadCSV(rows,filename){
+  const csv=rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download=filename; a.click();
 }
-
-function downloadPayCSV() {
-  const defaultRate = parseFloat(document.getElementById('export-rate').value) || 18;
-  const dateLabel = document.getElementById('export-date').value;
-  const rows = [['Name','Badge','Post','Shift','Hours Worked','Hourly Rate','Total Pay','Status']];
-  state.guards.forEach(g => {
-    const hours = calcHours(g.id);
-    const rate = parseFloat(g.rate) || defaultRate;
-    rows.push([g.name, g.badge||'', g.post||'', g.shift||'', hours.toFixed(2), rate.toFixed(2), (hours*rate).toFixed(2), guardStatus(g.id)]);
+function downloadPayCSV(){
+  const defaultRate=parseFloat(document.getElementById('export-rate').value)||18;
+  const dateLabel=document.getElementById('export-date').value;
+  const rows=[['Name','Badge','Phone','Hours Worked','Hourly Rate','Total Pay','Status']];
+  state.guards.forEach(g=>{
+    const hours=calcHours(g.id),rate=parseFloat(g.rate)||defaultRate;
+    rows.push([g.name,g.badge||'',g.phone||'',hours.toFixed(2),rate.toFixed(2),(hours*rate).toFixed(2),guardStatus(g.id)]);
   });
-  downloadCSV(rows, `fpi-pay-${dateLabel.replace(/\s/g,'-')}.csv`);
+  downloadCSV(rows,`fpi-pay-${dateLabel.replace(/\s/g,'-')}.csv`);
 }
-
-function downloadEventLogCSV() {
-  const guardMap = Object.fromEntries(state.guards.map(g => [g.id, g]));
-  const rows = [['Timestamp','Guard Name','Badge','Post','Action','Note','Logged By']];
-  [...state.events].sort((a,b) => a.ts - b.ts).forEach(ev => {
-    const g = guardMap[ev.guard_id] || {};
-    rows.push([new Date(ev.ts).toISOString(), g.name||'Unknown', g.badge||'', g.post||'', ev.action, ev.note||'', ev.by_sup]);
+function downloadEventLogCSV(){
+  const guardMap=Object.fromEntries(state.guards.map(g=>[g.id,g]));
+  const rows=[['Timestamp','Guard Name','Badge','Phone','Action','Note','Logged By']];
+  [...state.events].sort((a,b)=>a.ts-b.ts).forEach(ev=>{
+    const g=guardMap[ev.guard_id]||{};
+    rows.push([new Date(ev.ts).toISOString(),g.name||'Unknown',g.badge||'',g.phone||'',ev.action,ev.note||'',ev.by_sup]);
   });
-  downloadCSV(rows, 'fpi-event-log.csv');
+  downloadCSV(rows,'fpi-event-log.csv');
 }
 
 // ─────────────────────────────────────────
 // Guard selects
 // ─────────────────────────────────────────
-function populateGuardSelects() {
-  const sorted = [...state.guards].sort((a,b) => a.name.localeCompare(b.name));
-  const opts = sorted.map(g => `<option value="${g.id}">${escHtml(g.name)}</option>`).join('');
-  const clockEl = document.getElementById('clock-guard');
-  const noteEl = document.getElementById('note-guard');
-  if (clockEl) { const v = clockEl.value; clockEl.innerHTML = '<option value="">— Select guard —</option>' + opts; clockEl.value = v; }
-  if (noteEl) { const v = noteEl.value; noteEl.innerHTML = '<option value="">— General note —</option>' + opts; noteEl.value = v; }
+function populateGuardSelects(){
+  const sorted=[...state.guards].sort((a,b)=>a.name.localeCompare(b.name));
+  const opts=sorted.map(g=>`<option value="${g.id}">${escHtml(g.name)}</option>`).join('');
+  const clockEl=document.getElementById('clock-guard');
+  const noteEl=document.getElementById('note-guard');
+  if(clockEl){const v=clockEl.value;clockEl.innerHTML='<option value="">— Select guard —</option>'+opts;clockEl.value=v;}
+  if(noteEl){const v=noteEl.value;noteEl.innerHTML='<option value="">— General note —</option>'+opts;noteEl.value=v;}
 }
 
 // ─────────────────────────────────────────
 // Modals
 // ─────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function backdropClose(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
-
-// ─────────────────────────────────────────
-// XSS safety
-// ─────────────────────────────────────────
-function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function backdropClose(e,id){if(e.target===document.getElementById(id))closeModal(id);}
 
 // ─────────────────────────────────────────
 // Auto-resume session
 // ─────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = sessionStorage.getItem('currentSup');
-  if (saved) { currentSup = saved; showApp(); }
+window.addEventListener('DOMContentLoaded',()=>{
+  const savedSup=sessionStorage.getItem('currentSup');
+  const savedSupId=sessionStorage.getItem('currentSupId');
+  if(savedSup&&savedSupId){
+    currentSup=savedSup; currentSupId=savedSupId;
+    // Highlight the correct button
+    document.querySelectorAll('.sup-btn').forEach(b=>{ if(b.dataset.id===savedSupId)b.classList.add('selected'); });
+    showApp();
+  }
 });
 </script>
 </body>

@@ -33,6 +33,15 @@ export async function initTables() {
   await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS notes TEXT`;
   await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS employment_type TEXT`;
   await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS supervisor_id TEXT`;
+  // Dedup before creating unique index (safe to run repeatedly)
+  await sql`
+    DELETE FROM guards WHERE id IN (
+      SELECT id FROM (
+        SELECT id, ROW_NUMBER() OVER (PARTITION BY name, supervisor_id ORDER BY id) AS rn
+        FROM guards
+      ) t WHERE rn > 1
+    )
+  `;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS guards_name_sup_uidx ON guards(name, supervisor_id)`;
   await sql`
     CREATE TABLE IF NOT EXISTS events (

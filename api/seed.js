@@ -101,16 +101,6 @@ export default async function handler(req) {
     await initTables();
     const sql = getDb();
 
-    // Remove duplicate guards (keep the earliest id per name+supervisor_id)
-    await sql`
-      DELETE FROM guards WHERE id IN (
-        SELECT id FROM (
-          SELECT id, ROW_NUMBER() OVER (PARTITION BY name, supervisor_id ORDER BY id) AS rn
-          FROM guards
-        ) t WHERE rn > 1
-      )
-    `;
-
     for (const s of SUPERVISORS) {
       await sql`INSERT INTO supervisors (id, name) VALUES (${s.id}, ${s.name}) ON CONFLICT (id) DO NOTHING`;
     }

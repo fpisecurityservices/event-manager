@@ -5,9 +5,21 @@ export default async function handler(req) {
   try {
     await initTables();
     const sql = getDb();
+    const url = new URL(req.url);
 
     if (req.method === 'GET') {
-      const rows = await sql`SELECT * FROM events ORDER BY ts DESC`;
+      const supId = url.searchParams.get('supervisor_id');
+      let rows;
+      if (supId) {
+        rows = await sql`
+          SELECT e.* FROM events e
+          JOIN guards g ON g.id = e.guard_id
+          WHERE g.supervisor_id = ${supId}
+          ORDER BY e.ts DESC
+        `;
+      } else {
+        rows = await sql`SELECT * FROM events ORDER BY ts DESC`;
+      }
       return jsonResponse(rows);
     }
 
@@ -16,7 +28,7 @@ export default async function handler(req) {
       const id = crypto.randomUUID();
       await sql`
         INSERT INTO events (id, guard_id, action, note, by_sup, ts)
-        VALUES (${id}, ${guardId}, ${action}, ${note || ''}, ${by}, ${ts})
+        VALUES (${id}, ${guardId}, ${action}, ${note||''}, ${by}, ${ts})
       `;
       return jsonResponse({ ok: true, id });
     }

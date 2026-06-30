@@ -1,20 +1,18 @@
 import { neon } from '@neondatabase/serverless';
 
 let _sql = null;
-
 export function getDb() {
-  if (!_sql) {
-    _sql = neon(process.env.DATABASE_URL);
-  }
+  if (!_sql) _sql = neon(process.env.DATABASE_URL);
   return _sql;
 }
 
 export async function initTables() {
   const sql = getDb();
+  await sql`CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)`;
   await sql`
-    CREATE TABLE IF NOT EXISTS meta (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL
+    CREATE TABLE IF NOT EXISTS supervisors (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL
     )
   `;
   await sql`
@@ -22,11 +20,19 @@ export async function initTables() {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       badge TEXT,
+      phone TEXT,
       post TEXT,
       shift TEXT,
-      rate NUMERIC
+      rate NUMERIC,
+      notes TEXT,
+      employment_type TEXT,
+      supervisor_id TEXT
     )
   `;
+  await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS phone TEXT`;
+  await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS notes TEXT`;
+  await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS employment_type TEXT`;
+  await sql`ALTER TABLE guards ADD COLUMN IF NOT EXISTS supervisor_id TEXT`;
   await sql`
     CREATE TABLE IF NOT EXISTS events (
       id TEXT PRIMARY KEY,
@@ -38,16 +44,7 @@ export async function initTables() {
     )
   `;
   await sql`
-    CREATE TABLE IF NOT EXISTS messages (
-      id TEXT PRIMARY KEY,
-      type TEXT,
-      sender TEXT,
-      text TEXT,
-      ts BIGINT
-    )
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS notes (
+    CREATE TABLE IF NOT EXISTS notes_log (
       id TEXT PRIMARY KEY,
       guard_id TEXT,
       guard_name TEXT,
@@ -64,7 +61,6 @@ export function jsonResponse(data, status = 200) {
     headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
   });
 }
-
 export function errorResponse(msg, status = 500) {
   return jsonResponse({ error: msg }, status);
 }

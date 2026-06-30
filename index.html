@@ -48,6 +48,16 @@
   .sup-btn.selected .sup-icon { color: #fff; }
   .sup-icon { display: block; font-size: 20px; margin-bottom: 4px; color: var(--text-sec); }
   .sup-btn.selected .sup-icon { color: rgba(255,255,255,0.85); }
+  .sup-btn.admin-btn { grid-column: 1 / -1; background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .sup-btn.admin-btn .sup-icon { color: rgba(255,255,255,0.7); }
+  .sup-btn.admin-btn.selected { background: #0d0d1a; border-color: #0d0d1a; }
+  .admin-badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 10px; font-weight: 700; padding: 2px 7px; letter-spacing: 0.5px; text-transform: uppercase; margin-left: 6px; vertical-align: middle; }
+  /* Section label pill in admin view */
+  .section-pill { display: inline-flex; align-items: center; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; background: #e8edf5; color: #2d4a7a; white-space: nowrap; }
+  /* Admin overview grid */
+  .admin-section-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  .admin-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .admin-section-title { font-size: 15px; font-weight: 700; }
 
   /* PIN area */
   .pin-area { display: flex; flex-direction: column; gap: 6px; }
@@ -253,6 +263,7 @@
       <button class="sup-btn" data-id="moya"     onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Ander Moya</button>
       <button class="sup-btn" data-id="peter"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Peter Sekusan</button>
       <button class="sup-btn" data-id="rocha"    onclick="selectSup(this)"><i class="ti ti-users sup-icon"></i>Harold Rocha</button>
+      <button class="sup-btn admin-btn" data-id="admin" onclick="selectSup(this)"><i class="ti ti-shield-check sup-icon"></i>General Admin<span class="admin-badge">All Sections</span></button>
     </div>
     <div class="pin-area">
       <label>Event PIN (4 digits)</label>
@@ -301,7 +312,7 @@
     </div>
     <div id="roster-banner-wrap"></div>
     <div class="filter-row">
-      <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-guard')"><i class="ti ti-plus"></i> Add guard</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddGuardModal()"><i class="ti ti-plus"></i> Add guard</button>
       <button class="btn btn-outline btn-sm" onclick="openModal('modal-bulk')"><i class="ti ti-upload"></i> Bulk import</button>
     </div>
     <div class="card" style="padding:0 16px" id="guards-list"></div>
@@ -406,17 +417,17 @@
   <!-- EXPORT -->
   <div class="tab-panel" id="panel-export">
     <div class="card" style="margin-bottom:12px">
-      <strong style="font-size:16px;display:block;margin-bottom:14px">Pay Summary — My Section</strong>
+      <strong style="font-size:16px;display:block;margin-bottom:14px" id="export-heading">Pay Summary — My Section</strong>
       <div class="export-inputs">
         <div><label>Default rate ($/hr)</label><input type="number" id="export-rate" value="18.00" step="0.01" min="0"></div>
         <div><label>Event date</label><input type="text" id="export-date" value="July 4, 2025"></div>
       </div>
       <p style="font-size:12px;color:var(--text-sec);margin-bottom:12px">Hours = first clock-in → last clock-out. No-shows = 0 hrs. Still clocked in counts to now.</p>
       <div class="table-wrap">
-        <table class="pay-table">
-          <thead><tr><th>Name</th><th>Badge</th><th>Hours</th><th>Rate</th><th>Total</th></tr></thead>
+        <table class="pay-table" id="pay-table">
+          <thead id="pay-thead"><tr><th>Name</th><th>Badge</th><th>Hours</th><th>Rate</th><th>Total</th></tr></thead>
           <tbody id="pay-body"></tbody>
-          <tfoot><tr><td colspan="4">Total Payout</td><td id="pay-total">$0.00</td></tr></tfoot>
+          <tfoot><tr><td colspan="4" id="pay-total-label">Total Payout</td><td id="pay-total">$0.00</td></tr></tfoot>
         </table>
       </div>
       <div class="export-btns">
@@ -446,6 +457,7 @@
   <div class="modal">
     <div class="modal-drag"></div>
     <div class="modal-header"><span class="modal-title">Add Guard</span><button class="modal-close" onclick="closeModal('modal-add-guard')">×</button></div>
+    <div id="ag-section-wrap" style="display:none"><label>Section *</label><select id="ag-section"><option value="">— Select section —</option></select></div>
     <div><label>Full name *</label><input type="text" id="ag-name" placeholder="Jane Smith" autocomplete="off"></div>
     <div><label>Phone number</label><input type="tel" id="ag-phone" placeholder="305-555-1234"></div>
     <div><label>Badge / ID #</label><input type="text" id="ag-badge" placeholder="1234"></div>
@@ -507,6 +519,18 @@
 const state = { guards: [], events: [], notes: [] };
 let currentSup = '';
 let currentSupId = '';
+
+const SUP_NAMES = {
+  'viv-jenn': 'Vivian & Jennifer',
+  'allen':    'Gazwin Allen',
+  'boyle':    'William Boyle',
+  'kevin':    'Kevin Amaya',
+  'moya':     'Ander Moya',
+  'peter':    'Peter Sekusan',
+  'rocha':    'Harold Rocha',
+};
+const SUP_ORDER = ['viv-jenn','allen','boyle','kevin','moya','peter','rocha'];
+function isAdmin() { return currentSupId === 'admin'; }
 let currentTab = 'board';
 let pollInterval = null;
 let bulkRows = [];
@@ -595,7 +619,7 @@ function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('bottom-nav').style.display = 'flex';
-  document.getElementById('top-bar-sup').textContent = currentSup + ' · My section';
+  document.getElementById('top-bar-sup').textContent = isAdmin() ? 'General Admin · All Sections' : currentSup + ' · My section';
   checkRosterLoaded();
   syncAll();
   pollInterval = setInterval(syncAll, 5000);
@@ -603,7 +627,8 @@ function showApp() {
 
 async function checkRosterLoaded() {
   try {
-    const guards = await api('guards?supervisor_id='+currentSupId);
+    const qs = isAdmin() ? '' : '?supervisor_id='+currentSupId;
+    const guards = await api('guards'+qs);
     if (guards.length === 0) {
       document.getElementById('roster-banner-wrap').innerHTML = `
         <div class="roster-banner">
@@ -633,9 +658,10 @@ async function loadRoster() {
 async function syncAll() {
   setSyncing(true);
   try {
-    const q = 'supervisor_id='+currentSupId;
+    const q = isAdmin() ? '' : 'supervisor_id='+currentSupId;
+    const qs = q ? '?'+q : '';
     const [guards, events, notes] = await Promise.all([
-      api('guards?'+q), api('events?'+q), api('notes?'+q)
+      api('guards'+qs), api('events'+qs), api('notes'+qs)
     ]);
     state.guards = guards;
     state.events = events;
@@ -686,17 +712,49 @@ function renderBoard() {
 
   const list = document.getElementById('board-guards');
   if (!guards.length) { list.innerHTML='<div style="padding:16px;color:var(--text-sec);text-align:center">No guards loaded yet. Go to Guards tab to load roster.</div>'; return; }
-  list.innerHTML = guards.map(g => {
-    const s = guardStatus(g.id);
-    return `<div class="board-status-row">
-      ${avatar(g.name)}
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(g.name)}</div>
-        <div style="font-size:12px;color:var(--text-sec)">${g.badge?'#'+escHtml(g.badge):''}${g.badge&&g.post?' · ':''}${g.post?escHtml(g.post):''}</div>
-      </div>
-      ${statusPill(s)}
-    </div>`;
-  }).join('');
+
+  if (isAdmin()) {
+    // Group by section
+    list.innerHTML = SUP_ORDER.map(supId => {
+      const secGuards = guards.filter(g=>g.supervisor_id===supId);
+      if (!secGuards.length) return '';
+      let sIn=0,sFlag=0,sNoshow=0;
+      secGuards.forEach(g=>{ const s=guardStatus(g.id); if(s==='in')sIn++; else if(s==='flag')sFlag++; else if(s==='noshow')sNoshow++; });
+      return `<div class="admin-section-card">
+        <div class="admin-section-header">
+          <span class="admin-section-title">${escHtml(SUP_NAMES[supId])}</span>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <span class="pill pill-in" style="font-size:11px">${sIn} in</span>
+            ${sFlag?`<span class="pill pill-flag" style="font-size:11px">${sFlag} flagged</span>`:''}
+            ${sNoshow?`<span class="pill pill-noshow" style="font-size:11px">${sNoshow} no-show</span>`:''}
+          </div>
+        </div>
+        ${secGuards.map(g=>{
+          const s=guardStatus(g.id);
+          return `<div class="board-status-row">
+            ${avatar(g.name)}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(g.name)}</div>
+              <div style="font-size:12px;color:var(--text-sec)">${g.badge?'#'+escHtml(g.badge):''}${g.badge&&g.phone?' · ':''}${g.phone?`<a href="tel:${g.phone.replace(/[^\d\+]/g,'')}" style="color:var(--blue);text-decoration:none">${escHtml(g.phone)}</a>`:''}</div>
+            </div>
+            ${statusPill(s)}
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+  } else {
+    list.innerHTML = guards.map(g => {
+      const s = guardStatus(g.id);
+      return `<div class="board-status-row">
+        ${avatar(g.name)}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(g.name)}</div>
+          <div style="font-size:12px;color:var(--text-sec)">${g.badge?'#'+escHtml(g.badge):''}${g.badge&&g.post?' · ':''}${g.post?escHtml(g.post):''}</div>
+        </div>
+        ${statusPill(s)}
+      </div>`;
+    }).join('');
+  }
 }
 
 // ─────────────────────────────────────────
@@ -704,36 +762,65 @@ function renderBoard() {
 // ─────────────────────────────────────────
 function renderGuards() {
   const q = (document.getElementById('guards-search')?.value||'').toLowerCase();
-  const filtered = state.guards.filter(g=>g.name.toLowerCase().includes(q)||(g.badge||'').includes(q)||(g.phone||'').includes(q));
+  const filtered = state.guards.filter(g=>g.name.toLowerCase().includes(q)||(g.badge||'').includes(q)||(g.phone||'').includes(q)||(SUP_NAMES[g.supervisor_id]||'').toLowerCase().includes(q));
   document.getElementById('guard-count-badge').textContent = state.guards.length+' guards';
   const list = document.getElementById('guards-list');
   if (!filtered.length) { list.innerHTML='<div style="padding:16px;color:var(--text-sec)">No guards match.</div>'; return; }
-  list.innerHTML = filtered.map(g => {
-    const s = guardStatus(g.id);
-    return `<div class="guard-row">
-      ${avatar(g.name)}
-      <div class="guard-info">
-        <div class="guard-name">${escHtml(g.name)}</div>
-        <div class="guard-meta">
-          ${g.badge?`<span class="post-badge">#${escHtml(g.badge)}</span>`:''}
-          ${statusPill(s)}
-        </div>
-        <div class="guard-meta" style="margin-top:4px">
-          ${g.phone ? phoneLink(g.phone) : ''}
-          ${g.notes?`<span class="guard-note"><i class="ti ti-alert-triangle" style="font-size:12px"></i> ${escHtml(g.notes)}</span>`:''}
-        </div>
+
+  // In admin mode group by section, otherwise flat list
+  if (isAdmin()) {
+    list.innerHTML = SUP_ORDER.map(supId => {
+      const secFiltered = filtered.filter(g=>g.supervisor_id===supId);
+      if (!secFiltered.length) return '';
+      return `<div style="padding:10px 0 4px"><strong style="font-size:12px;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.6px">${escHtml(SUP_NAMES[supId])}</strong></div>`
+        + secFiltered.map(g => guardRow(g)).join('');
+    }).join('');
+  } else {
+    list.innerHTML = filtered.map(g => guardRow(g)).join('');
+  }
+}
+
+function guardRow(g) {
+  const s = guardStatus(g.id);
+  return `<div class="guard-row">
+    ${avatar(g.name)}
+    <div class="guard-info">
+      <div class="guard-name">${escHtml(g.name)}</div>
+      <div class="guard-meta">
+        ${g.badge?`<span class="post-badge">#${escHtml(g.badge)}</span>`:''}
+        ${statusPill(s)}
+        ${isAdmin()&&g.supervisor_id?`<span class="section-pill">${escHtml(SUP_NAMES[g.supervisor_id]||g.supervisor_id)}</span>`:''}
       </div>
-      <div class="guard-actions">
-        <button class="btn btn-outline btn-icon" onclick="promptDelete('${g.id}','${escHtml(g.name)}')" style="border-color:#fde8e8;color:var(--red)"><i class="ti ti-trash"></i></button>
+      <div class="guard-meta" style="margin-top:4px">
+        ${g.phone ? phoneLink(g.phone) : ''}
+        ${g.notes?`<span class="guard-note"><i class="ti ti-alert-triangle" style="font-size:12px"></i> ${escHtml(g.notes)}</span>`:''}
       </div>
-    </div>`;
-  }).join('');
+    </div>
+    <div class="guard-actions">
+      <button class="btn btn-outline btn-icon" onclick="promptDelete('${g.id}','${escHtml(g.name)}')" style="border-color:#fde8e8;color:var(--red)"><i class="ti ti-trash"></i></button>
+    </div>
+  </div>`;
+}
+
+function openAddGuardModal() {
+  const wrap = document.getElementById('ag-section-wrap');
+  const sel = document.getElementById('ag-section');
+  if (isAdmin()) {
+    wrap.style.display = 'block';
+    sel.innerHTML = '<option value="">— Select section —</option>' +
+      SUP_ORDER.map(id=>`<option value="${id}">${escHtml(SUP_NAMES[id])}</option>`).join('');
+  } else {
+    wrap.style.display = 'none';
+  }
+  openModal('modal-add-guard');
 }
 
 async function addGuard() {
   const name = document.getElementById('ag-name').value.trim();
   if (!name) { alert('Name is required.'); return; }
-  const guard = { id:uid(), name, phone:document.getElementById('ag-phone').value.trim(), badge:document.getElementById('ag-badge').value.trim(), post:document.getElementById('ag-post').value.trim(), notes:document.getElementById('ag-notes').value.trim(), rate:parseFloat(document.getElementById('ag-rate').value)||null, supervisor_id:currentSupId };
+  const supId = isAdmin() ? document.getElementById('ag-section').value : currentSupId;
+  if (!supId) { alert('Please select a section.'); return; }
+  const guard = { id:uid(), name, phone:document.getElementById('ag-phone').value.trim(), badge:document.getElementById('ag-badge').value.trim(), post:document.getElementById('ag-post').value.trim(), notes:document.getElementById('ag-notes').value.trim(), rate:parseFloat(document.getElementById('ag-rate').value)||null, supervisor_id:supId };
   await api('guards',{method:'POST',body:JSON.stringify(guard)});
   closeModal('modal-add-guard');
   ['ag-name','ag-phone','ag-badge','ag-post','ag-notes','ag-rate'].forEach(id=>document.getElementById(id).value='');
@@ -979,13 +1066,26 @@ function calcHours(guardId){
   return Math.round(ms/36000)/100;
 }
 function renderExport(){
+  const heading=document.getElementById('export-heading');
+  if(heading)heading.textContent=isAdmin()?'Pay Summary — All Sections':'Pay Summary — My Section';
   const defaultRate=parseFloat(document.getElementById('export-rate')?.value)||18;
+  const thead=document.getElementById('pay-thead');
+  const totalLabel=document.getElementById('pay-total-label');
+  if(isAdmin()){
+    thead.innerHTML='<tr><th>Name</th><th>Section</th><th>Badge</th><th>Hours</th><th>Rate</th><th>Total</th></tr>';
+    totalLabel.colSpan=5;
+  } else {
+    thead.innerHTML='<tr><th>Name</th><th>Badge</th><th>Hours</th><th>Rate</th><th>Total</th></tr>';
+    totalLabel.colSpan=4;
+  }
+  const sortedGuards=isAdmin()?[...state.guards].sort((a,b)=>SUP_ORDER.indexOf(a.supervisor_id)-SUP_ORDER.indexOf(b.supervisor_id)||a.name.localeCompare(b.name)):state.guards;
   const tbody=document.getElementById('pay-body');
   let totalPay=0;
-  tbody.innerHTML=state.guards.map(g=>{
+  tbody.innerHTML=sortedGuards.map(g=>{
     const hours=calcHours(g.id),rate=parseFloat(g.rate)||defaultRate,pay=hours*rate;
     totalPay+=pay;
-    return `<tr><td>${escHtml(g.name)}</td><td>${escHtml(g.badge||'')}</td><td>${hours.toFixed(2)}</td><td>$${rate.toFixed(2)}</td><td>$${pay.toFixed(2)}</td></tr>`;
+    const sectionCell=isAdmin()?`<td style="font-size:12px;color:var(--text-sec)">${escHtml(SUP_NAMES[g.supervisor_id]||'')}</td>`:'';
+    return `<tr><td>${escHtml(g.name)}</td>${sectionCell}<td>${escHtml(g.badge||'')}</td><td>${hours.toFixed(2)}</td><td>$${rate.toFixed(2)}</td><td>$${pay.toFixed(2)}</td></tr>`;
   }).join('');
   document.getElementById('pay-total').textContent='$'+totalPay.toFixed(2);
   document.getElementById('summary-grid').innerHTML=[
@@ -1023,8 +1123,17 @@ function downloadEventLogCSV(){
 // Guard selects
 // ─────────────────────────────────────────
 function populateGuardSelects(){
-  const sorted=[...state.guards].sort((a,b)=>a.name.localeCompare(b.name));
-  const opts=sorted.map(g=>`<option value="${g.id}">${escHtml(g.name)}</option>`).join('');
+  const sorted=[...state.guards].sort((a,b)=>{
+    if(isAdmin()){
+      const si=SUP_ORDER.indexOf(a.supervisor_id)-SUP_ORDER.indexOf(b.supervisor_id);
+      if(si!==0)return si;
+    }
+    return a.name.localeCompare(b.name);
+  });
+  const opts=sorted.map(g=>{
+    const label = isAdmin() ? `${escHtml(g.name)} (${escHtml(SUP_NAMES[g.supervisor_id]||g.supervisor_id)})` : escHtml(g.name);
+    return `<option value="${g.id}">${label}</option>`;
+  }).join('');
   const clockEl=document.getElementById('clock-guard');
   const noteEl=document.getElementById('note-guard');
   if(clockEl){const v=clockEl.value;clockEl.innerHTML='<option value="">— Select guard —</option>'+opts;clockEl.value=v;}

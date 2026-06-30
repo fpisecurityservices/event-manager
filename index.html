@@ -315,6 +315,7 @@
       <button class="btn btn-primary btn-sm" onclick="openAddGuardModal()"><i class="ti ti-plus"></i> Add guard</button>
       <button class="btn btn-outline btn-sm" onclick="openModal('modal-bulk')"><i class="ti ti-upload"></i> Bulk import</button>
       <button class="btn btn-outline btn-sm" id="load-roster-btn" onclick="loadRoster()"><i class="ti ti-download"></i> Load / Fix Roster</button>
+      <button class="btn btn-outline btn-sm" onclick="fixDuplicates()" style="border-color:#fde8e8;color:var(--red)"><i class="ti ti-tool"></i> Fix Duplicates</button>
     </div>
     <div class="card" style="padding:0 16px" id="guards-list"></div>
   </div>
@@ -640,6 +641,20 @@ async function checkRosterLoaded() {
       document.getElementById('roster-banner-wrap').innerHTML = '';
     }
   } catch(e) {}
+}
+
+async function fixDuplicates() {
+  const btn = event.target.closest('button');
+  btn.disabled = true; btn.textContent = 'Fixing…';
+  try {
+    const result = await api('dedup', { method: 'POST' });
+    alert(`Done. Removed ${result.removed} duplicates. Guards now: ${result.after}`);
+    await syncAll();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-tool"></i> Fix Duplicates';
+  }
 }
 
 async function loadRoster() {
